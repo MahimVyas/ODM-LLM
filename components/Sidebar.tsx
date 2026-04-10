@@ -55,14 +55,14 @@ export default memo(function Sidebar({
       {/* Mobile Toggle */}
       <button
         onClick={toggleSidebar}
-        className="fixed top-4 left-4 z-50 p-2 bg-slate-900 border border-slate-800 rounded-lg lg:hidden"
+        className="fixed top-4 left-4 z-50 p-2 bg-gray-900 border border-gray-800 rounded-lg lg:hidden shadow-lg"
       >
-        <Menu size={20} />
+        <Menu size={20} className="text-gray-100" />
       </button>
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-slate-950 border-r border-slate-800 transition-transform duration-300 transform lg:relative lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 w-64 bg-gray-950 border-r border-gray-800 transition-transform duration-300 transform lg:relative lg:translate-x-0",
           !isSidebarOpen && "-translate-x-full lg:hidden"
         )}
       >
@@ -70,7 +70,7 @@ export default memo(function Sidebar({
           {/* New Chat Button */}
           <button
             onClick={() => onSelectChat(null)}
-            className="flex items-center gap-2 w-full p-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium transition-colors mb-6"
+            className="flex items-center gap-2 w-full p-3 rounded-xl bg-gray-100 hover:bg-white text-gray-950 font-semibold transition-colors mb-6 shadow-sm"
           >
             <Plus size={18} />
             New Chat
@@ -78,7 +78,7 @@ export default memo(function Sidebar({
 
           {/* Chat List */}
           <div className="flex-1 overflow-y-auto space-y-1">
-            <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
+            <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">
               Recent Conversations
             </h2>
             {chats?.map((chat) => (
@@ -88,12 +88,12 @@ export default memo(function Sidebar({
                 className={cn(
                   "group flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors",
                   currentChatId === chat.id
-                    ? "bg-slate-800 text-white"
-                    : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
+                    ? "bg-gray-900 border border-gray-800 text-white shadow-sm"
+                    : "text-gray-400 hover:bg-gray-900/50 hover:text-gray-200"
                 )}
               >
                 <MessageSquare size={16} />
-                <span className="flex-1 truncate text-sm">{chat.title}</span>
+                <span className="flex-1 truncate text-sm font-medium">{chat.title}</span>
                 <button
                   onClick={(e) => deleteChat(chat.id, e)}
                   className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-opacity"
@@ -105,25 +105,25 @@ export default memo(function Sidebar({
           </div>
 
           {/* Bottom Profile/Settings */}
-          <div className="pt-4 mt-4 border-t border-slate-800 space-y-1">
+          <div className="pt-4 mt-4 border-t border-gray-800 space-y-1">
             <button 
               onClick={toggleSettings}
-              className="flex items-center gap-3 w-full p-3 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-colors"
+              className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors"
             >
               <Settings size={18} />
               <span className="text-sm font-medium">Settings</span>
             </button>
             
             {session ? (
-              <div className="flex items-center gap-3 w-full p-3 rounded-xl text-slate-400">
+              <div className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400">
                 {session.user?.image ? (
-                  <img src={session.user.image} className="w-8 h-8 rounded-full border border-slate-700" alt="Avatar" />
+                  <img src={session.user.image} className="w-8 h-8 rounded-full border border-gray-800" alt="Avatar" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 border border-slate-700">
+                  <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 border border-gray-800">
                     <User size={18} />
                   </div>
                 )}
-                <span className="flex-1 text-sm font-medium truncate">{session.user?.name}</span>
+                <span className="flex-1 text-sm font-medium truncate text-gray-200">{session.user?.name}</span>
                 <button 
                   onClick={() => signOut()}
                   className="p-1 hover:text-white transition-colors"
@@ -135,7 +135,7 @@ export default memo(function Sidebar({
             ) : (
               <button 
                 onClick={() => signIn('google')}
-                className="flex items-center gap-3 w-full p-3 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-colors"
+                className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors"
               >
                 <LogIn size={18} />
                 <span className="text-sm font-medium">Sign In</span>
