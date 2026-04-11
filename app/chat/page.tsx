@@ -1,5 +1,5 @@
 "use client";
-
+import OnboardingGuide from "@/components/OnboardingGuide";
 import { useState, useRef, useEffect, memo } from "react";
 import {
   Camera,
@@ -278,6 +278,8 @@ export default function Home() {
         setVisionStatus("");
       }
 
+      
+
       const promptWithContext = imageCaption 
         ? `[System Context: The user has uploaded an image. A local vision model analyzed it and detected: "${imageCaption}". Use this context to answer the user's prompt.] \n\nUser prompt: ${finalPrompt}`
         : finalPrompt;
@@ -349,6 +351,9 @@ export default function Home() {
       </div>
 
       <SettingsModal />
+      <OnboardingGuide />
+
+      
 
       <div className="flex-1 flex flex-col relative min-w-0">
         

@@ -92,18 +92,12 @@ const Sidebar = memo(function Sidebar({
           ))}
         </div>
 
-        {/* Bottom Profile/Settings */}
-        <div className="pt-4 mt-4 border-t border-white/5 space-y-1">
-          <button
-            onClick={toggleSettings}
-            className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400 hover:bg-[#212121] hover:text-gray-200 transition-colors"
-          >
-            <Settings size={18} />
-            <span className="text-sm font-medium">Settings</span>
-          </button>
-
-          {session ? (
-            <div className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400">
+        {/* 🚀 Bottom Profile/Settings (Single Column Layout) */}
+        <div className="pt-4 mt-4 border-t border-white/5 flex flex-col gap-1">
+          
+          {/* 1. User Profile Display */}
+          {session && (
+            <div className="flex items-center gap-3 w-full p-2 mb-2 rounded-xl text-gray-400">
               {session.user?.image ? (
                 <img
                   src={session.user.image}
@@ -118,14 +112,27 @@ const Sidebar = memo(function Sidebar({
               <span className="flex-1 text-sm font-medium truncate text-gray-200">
                 {session.user?.name}
               </span>
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="p-1 hover:text-white transition-colors"
-                title="Sign Out"
-              >
-                <LogOut size={16} />
-              </button>
             </div>
+          )}
+
+          {/* 2. Settings Button */}
+          <button
+            onClick={toggleSettings}
+            className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400 hover:bg-[#212121] hover:text-gray-200 transition-colors"
+          >
+            <Settings size={18} />
+            <span className="text-sm font-medium">Settings</span>
+          </button>
+
+          {/* 3. Auth Button (Log In / Log Out) */}
+          {session ? (
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400 hover:bg-[#212121] hover:text-red-400 transition-colors"
+            >
+              <LogOut size={18} />
+              <span className="text-sm font-medium">Log Out</span>
+            </button>
           ) : (
             <button
               onClick={() => signIn("google", { callbackUrl: "/chat" })}
@@ -135,6 +142,7 @@ const Sidebar = memo(function Sidebar({
               <span className="text-sm font-medium">Sign In</span>
             </button>
           )}
+
         </div>
       </div>
     </aside>

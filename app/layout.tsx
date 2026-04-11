@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ODMC | Edge Vision AI",
+  title: "ODM | On-Device Multimodal Engine",
   description: "Zero-latency, privacy-first multimodal intelligence running entirely on-device.",
 };
 
