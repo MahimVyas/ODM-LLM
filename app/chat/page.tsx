@@ -10,6 +10,7 @@ import {
   DownloadCloud,
   ChevronDown,
   Cpu,
+  Menu, // 👈 Added Menu icon for mobile
 } from "lucide-react";
 import { CreateWebWorkerMLCEngine } from "@mlc-ai/web-llm";
 import ReactMarkdown from "react-markdown";
@@ -51,15 +52,14 @@ const AVAILABLE_MODELS = [
   }
 ];
 
+// 🚀 RE-STYLED TO MATCH CHATGPT: Sleek grays, wide text blocks, distinct user bubbles
 const MessageItem = memo(({ role, content }: { role: string; content: string }) => (
-  <div
-    className={`flex ${role === "user" ? "justify-end" : "justify-start"}`}
-  >
+  <div className={`flex w-full ${role === "user" ? "justify-end" : "justify-start"} mb-6`}>
     <div
-      className={`px-5 py-3 rounded-2xl max-w-[85%] shadow-sm overflow-x-auto ${
+      className={`px-5 py-3.5 max-w-[90%] md:max-w-[80%] overflow-x-auto ${
         role === "user"
-          ? "bg-gray-100 text-gray-950 rounded-br-sm whitespace-pre-wrap"
-          : "bg-gray-900 text-gray-100 border border-gray-800 rounded-bl-sm"
+          ? "bg-[#2F2F2F] text-gray-100 rounded-3xl whitespace-pre-wrap"
+          : "bg-transparent text-gray-100"
       }`}
     >
       {role === "user" ? (
@@ -69,23 +69,22 @@ const MessageItem = memo(({ role, content }: { role: string; content: string }) 
           components={{
             code({ node, inline, className, children, ...props }: any) {
               return !inline ? (
-                <pre className="bg-gray-950 p-4 rounded-xl overflow-x-auto my-3 border border-gray-800 font-mono text-sm leading-relaxed shadow-inner">
+                <pre className="bg-[#0D0D0D] p-4 rounded-xl overflow-x-auto my-3 border border-white/5 font-mono text-sm leading-relaxed shadow-inner">
                   <code className="text-gray-300" {...props}>
                     {children}
                   </code>
                 </pre>
               ) : (
-                <code className="bg-gray-800 px-1.5 py-0.5 rounded text-gray-200 font-mono text-sm" {...props}>
+                <code className="bg-[#2F2F2F] px-1.5 py-0.5 rounded text-gray-200 font-mono text-sm" {...props}>
                   {children}
                 </code>
               );
             },
-            // Use div instead of p to avoid invalid nesting of pre tags (Hydration fix)
-            p: ({ children }) => <div className="mb-2 last:mb-0 leading-relaxed">{children}</div>,
-            ul: ({ children }) => <ul className="list-disc ml-4 mb-2 space-y-1">{children}</ul>,
-            ol: ({ children }) => <ol className="list-decimal ml-4 mb-2 space-y-1">{children}</ol>,
+            p: ({ children }) => <div className="mb-3 last:mb-0 leading-relaxed">{children}</div>,
+            ul: ({ children }) => <ul className="list-disc ml-6 mb-3 space-y-1">{children}</ul>,
+            ol: ({ children }) => <ol className="list-decimal ml-6 mb-3 space-y-1">{children}</ol>,
             li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-            strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+            strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
             a: ({ children, href }) => (
               <a href={href} className="text-blue-400 hover:underline transition-colors" target="_blank" rel="noopener noreferrer">
                 {children}
@@ -105,6 +104,9 @@ export default function Home() {
   const { status } = useSession();
   const router = useRouter();
 
+  // 🚀 NEW STATE: Controls the mobile sidebar
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/");
@@ -113,12 +115,10 @@ export default function Home() {
 
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   
-  // Model Selector State
   const [activeModelId, setActiveModelId] = useState<string>(AVAILABLE_MODELS[0].id);
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState<boolean>(false);
   const activeModel = AVAILABLE_MODELS.find(m => m.id === activeModelId);
   
-  // Load messages from Dexie
   const dbMessages = useLiveQuery(
     async () => {
       if (!currentChatId) return [];
@@ -131,7 +131,6 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // AI Engine States
   const engineRef = useRef<any>(null);
   const engineWorkerRef = useRef<Worker | null>(null);
   const visionWorkerRef = useRef<Worker | null>(null);
@@ -147,15 +146,6 @@ export default function Home() {
 
   const messages = dbMessages || [];
 
-  if (status === "loading" || status === "unauthenticated") {
-    return (
-      <div className="flex h-screen bg-gray-950 items-center justify-center">
-        <Loader2 className="animate-spin text-gray-400" size={32} />
-      </div>
-    );
-  }
-
-  // Initialize Vision Worker ONLY when needed (not on mount)
   const ensureVisionWorker = () => {
     if (!visionWorkerRef.current) {
       visionWorkerRef.current = new Worker(
@@ -174,6 +164,14 @@ export default function Home() {
       engineWorkerRef.current?.terminate();
     };
   }, []);
+
+  if (status === "loading" || status === "unauthenticated") {
+    return (
+      <div className="flex h-screen bg-[#212121] items-center justify-center">
+        <Loader2 className="animate-spin text-gray-400" size={32} />
+      </div>
+    );
+  }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -329,38 +327,64 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-950 text-gray-100 font-sans selection:bg-gray-800 overflow-hidden">
-      <Sidebar 
-        currentChatId={currentChatId} 
-        onSelectChat={setCurrentChatId} 
-      />
+    <div className="flex h-screen bg-[#212121] text-gray-100 font-sans selection:bg-gray-700 overflow-hidden relative">
+      
+      {/* 📱 MOBILE SIDEBAR OVERLAY */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* 🧭 RESPONSIVE SIDEBAR */}
+      <div className={`fixed inset-y-0 left-0 z-50 transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex`}>
+        <Sidebar 
+          currentChatId={currentChatId} 
+          onSelectChat={(id) => {
+            setCurrentChatId(id);
+            setIsMobileMenuOpen(false); // Close mobile menu when chat selected
+          }} 
+        />
+      </div>
+
       <SettingsModal />
 
       <div className="flex-1 flex flex-col relative min-w-0">
-        {/* --- Header --- */}
-        <header className="absolute top-0 w-full z-20 backdrop-blur-md bg-gray-950/70 border-b border-gray-800">
-          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        
+        {/* --- HEADER --- */}
+        <header className="sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-gray-900 text-gray-100 rounded-xl border border-gray-800">
-                <Sparkles size={20} />
+            <div className="flex items-center gap-3">
+              {/* 🍔 HAMBURGER BUTTON (Mobile Only) */}
+              <button 
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="md:hidden p-2 -ml-2 text-gray-400 hover:text-gray-100 rounded-lg hover:bg-[#2F2F2F] transition"
+              >
+                <Menu size={22} />
+              </button>
+
+              <div className="hidden sm:flex p-2 bg-[#2F2F2F] text-gray-100 rounded-xl border border-white/10">
+                <Sparkles size={18} />
               </div>
               <div>
-                <h1 className="text-lg font-semibold tracking-tight">
-                  ODMC
+                {/* 📝 CHANGED TITLE TO "ODM" */}
+                <h1 className="text-lg font-semibold tracking-tight text-gray-100">
+                  ODM
                 </h1>
-                <p className="text-xs text-gray-400 font-medium">
+                <p className="text-xs text-gray-400 font-medium hidden sm:block">
                   {engineRef.current ? "AI Active - Secure & Local" : "AI Offline"}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 relative">
+            <div className="flex items-center gap-2 sm:gap-3 relative">
               {!engineRef.current && !isEngineLoading && (
                 <div className="relative">
                   <button
                     onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
-                    className="flex items-center gap-2 px-3 py-2 bg-gray-900 border border-gray-800 rounded-lg text-sm font-medium hover:bg-gray-800 transition text-gray-100 shadow-sm"
+                    className="flex items-center gap-2 px-3 py-2 bg-[#2F2F2F] border border-white/10 rounded-lg text-sm font-medium hover:bg-[#3F3F3F] transition text-gray-100 shadow-sm"
                   >
                     <Cpu size={16} className="text-gray-400" />
                     <span className="hidden sm:inline">
@@ -370,9 +394,9 @@ export default function Home() {
                   </button>
 
                   {isModelDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-72 bg-gray-900 border border-gray-800 rounded-xl shadow-2xl overflow-hidden z-50">
-                      <div className="p-3 border-b border-gray-800 bg-gray-950/50">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Available Local Models</p>
+                    <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-[#2F2F2F] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
+                      <div className="p-3 border-b border-white/5 bg-[#212121]/50">
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Available Models</p>
                       </div>
                       <div className="max-h-80 overflow-y-auto">
                         {AVAILABLE_MODELS.map((model) => (
@@ -382,18 +406,14 @@ export default function Home() {
                               setActiveModelId(model.id);
                               setIsModelDropdownOpen(false);
                             }}
-                            className={`w-full text-left p-3 hover:bg-gray-800 border-b border-gray-800 last:border-0 transition-colors ${activeModelId === model.id ? 'bg-gray-800/50' : ''}`}
+                            className={`w-full text-left p-3 hover:bg-[#3F3F3F] border-b border-white/5 last:border-0 transition-colors ${activeModelId === model.id ? 'bg-[#3F3F3F]' : ''}`}
                           >
                             <div className="flex justify-between items-center mb-1">
-                              <span className={`font-semibold text-sm ${activeModelId === model.id ? 'text-white' : 'text-gray-200'}`}>
+                              <span className={`font-semibold text-sm ${activeModelId === model.id ? 'text-white' : 'text-gray-300'}`}>
                                 {model.name}
                               </span>
-                              <div className="flex gap-2 text-[10px] font-mono text-gray-400">
-                                <span className="bg-gray-950 px-1.5 py-0.5 rounded border border-gray-800">{model.params}</span>
-                                <span className="bg-gray-950 px-1.5 py-0.5 rounded border border-gray-800">{model.size}</span>
-                              </div>
                             </div>
-                            <p className="text-xs text-gray-400 leading-relaxed">
+                            <p className="text-xs text-gray-400 leading-relaxed hidden sm:block">
                               {model.description}
                             </p>
                           </button>
@@ -407,9 +427,9 @@ export default function Home() {
               {!engineRef.current && !isEngineLoading && (
                 <button
                   onClick={initializeEngine}
-                  className="text-sm bg-gray-100 hover:bg-white text-gray-950 px-5 py-2 rounded-lg shadow-sm transition flex items-center gap-2 font-semibold"
+                  className="text-sm bg-gray-100 hover:bg-white text-[#212121] px-4 sm:px-5 py-2 rounded-lg shadow-sm transition flex items-center gap-2 font-semibold"
                 >
-                  <DownloadCloud size={16} /> Load Engine
+                  <DownloadCloud size={16} /> <span className="hidden sm:inline">Load Engine</span>
                 </button>
               )}
             </div>
@@ -417,7 +437,7 @@ export default function Home() {
         </header>
 
         {isEngineLoading && (
-          <div className="absolute top-28 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-gray-900 border border-gray-800 rounded-2xl p-6 shadow-2xl z-20 animate-in fade-in zoom-in duration-300">
+          <div className="absolute top-28 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-[#2F2F2F] border border-white/10 rounded-2xl p-6 shadow-2xl z-20 animate-in fade-in zoom-in duration-300">
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-base font-semibold text-gray-100 flex items-center gap-2">
@@ -432,23 +452,23 @@ export default function Home() {
                 {loadingProgress}%
               </span>
             </div>
-            <div className="h-2.5 w-full bg-gray-800 rounded-full overflow-hidden mt-4 border border-gray-700">
+            <div className="h-2.5 w-full bg-[#1A1A1A] rounded-full overflow-hidden mt-4 border border-white/5">
               <div
                 className="h-full bg-gray-100 transition-all duration-300"
                 style={{ width: `${loadingProgress}%` }}
               />
             </div>
-            <p className="text-xs font-mono text-gray-400 mt-3 truncate bg-gray-950 p-2 rounded-lg border border-gray-800">
+            <p className="text-xs font-mono text-gray-400 mt-3 truncate bg-[#212121] p-2 rounded-lg border border-white/5">
               {loadingText}
             </p>
           </div>
         )}
 
         {showInitConfirm && (
-          <div className="absolute inset-0 z-100 flex items-center justify-center p-4 bg-gray-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-            <div className="w-full max-w-md bg-gray-900 border border-gray-800 rounded-3xl shadow-2xl p-8 animate-in slide-in-from-bottom-4 duration-300">
+          <div className="absolute inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
+            <div className="w-full max-w-md bg-[#2F2F2F] border border-white/10 rounded-3xl shadow-2xl p-6 sm:p-8 animate-in slide-in-from-bottom-4 duration-300">
               <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-gray-800 text-gray-100 rounded-2xl border border-gray-700">
+                <div className="p-3 bg-[#212121] text-gray-100 rounded-2xl border border-white/5">
                   <DownloadCloud size={28} />
                 </div>
                 <div>
@@ -458,7 +478,7 @@ export default function Home() {
               </div>
 
               <div className="space-y-4 mb-8">
-                <div className="flex justify-between items-center p-4 bg-gray-950 border border-gray-800 rounded-2xl">
+                <div className="flex justify-between items-center p-4 bg-[#212121] border border-white/5 rounded-2xl">
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-gray-200">
                       {activeModel?.name}
@@ -471,54 +491,49 @@ export default function Home() {
                     {activeModel?.size}
                   </span>
                 </div>
-                <div className="flex justify-between items-center p-4 bg-gray-950 border border-gray-800 rounded-2xl">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-gray-200">Vision Engine</span>
-                    <span className="text-xs text-gray-500">Image Analysis</span>
-                  </div>
-                  <span className="text-xs font-mono text-gray-400">~60MB</span>
-                </div>
               </div>
 
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowInitConfirm(false)}
-                  className="flex-1 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-semibold transition-colors border border-gray-700"
+                  className="flex-1 px-4 sm:px-6 py-3 bg-[#212121] hover:bg-[#1A1A1A] text-white rounded-xl font-semibold transition-colors border border-white/5"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={confirmInitialize}
-                  className="flex-1 px-6 py-3 bg-gray-100 hover:bg-white text-gray-950 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="flex-1 px-4 sm:px-6 py-3 bg-gray-100 hover:bg-white text-[#212121] rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
                 >
-                  Confirm Download
+                  Confirm
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        <main className="flex-1 overflow-y-auto px-4 pt-24 pb-32 max-w-3xl w-full mx-auto space-y-6 scroll-smooth">
+        {/* --- MAIN CHAT AREA --- */}
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 pt-12 pb-32 max-w-3xl w-full mx-auto scroll-smooth">
           {messages.length === 0 && !streamingContent ? (
-            <div className="h-full flex flex-col items-center justify-center text-gray-600 space-y-4 mt-12">
-              <Camera size={48} strokeWidth={1} />
+            <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-4 mt-12">
+              <Sparkles size={48} strokeWidth={1} />
+              <h2 className="text-xl font-semibold text-gray-300">How can I help you today?</h2>
               <p className="text-sm text-center font-medium">
                 {engineRef.current
-                  ? "AI loaded. Upload an image."
+                  ? "AI loaded. Upload an image or send a prompt."
                   : "Initialize AI engine to begin."}
               </p>
             </div>
           ) : (
-            <>
+            <div className="space-y-6">
               {messages.map((msg: any, idx: number) => (
                 <MessageItem key={idx} role={msg.role} content={msg.content} />
               ))}
               
               {(streamingContent || visionStatus) && (
-                <div className="flex justify-start">
-                  <div className="px-5 py-3 rounded-2xl max-w-[85%] shadow-sm bg-gray-900 text-gray-100 border border-gray-800 rounded-bl-sm whitespace-pre-wrap">
+                <div className="flex justify-start mb-6 w-full">
+                  <div className="px-5 py-3.5 max-w-[90%] md:max-w-[80%] bg-transparent text-gray-100 whitespace-pre-wrap">
                     {visionStatus && (
-                      <span className="text-xs text-gray-400 flex items-center gap-2 mb-1 font-mono">
+                      <span className="text-xs text-gray-400 flex items-center gap-2 mb-2 font-mono">
                         <Loader2 size={12} className="animate-spin" />{" "}
                         {visionStatus}
                       </span>
@@ -527,9 +542,9 @@ export default function Home() {
                       <span className="flex gap-1 items-center opacity-50 h-6">
                         {!visionStatus && (
                           <>
-                            <span className="h-2 w-2 bg-gray-700 rounded-full animate-bounce"></span>
-                            <span className="h-2 w-2 bg-gray-700 rounded-full animate-bounce delay-75"></span>
-                            <span className="h-2 w-2 bg-gray-700 rounded-full animate-bounce delay-150"></span>
+                            <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce"></span>
+                            <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce delay-75"></span>
+                            <span className="h-2 w-2 bg-gray-500 rounded-full animate-bounce delay-150"></span>
                           </>
                         )}
                       </span>
@@ -537,29 +552,31 @@ export default function Home() {
                   </div>
                 </div>
               )}
-            </>
+            </div>
           )}
         </main>
 
-        <footer className="absolute bottom-0 w-full z-10 pb-6 pt-4 px-4 bg-linear-to-t from-gray-950 via-gray-950 to-transparent">
+        {/* --- BOTTOM INPUT BAR --- */}
+        <footer className="absolute bottom-0 w-full z-10 pb-6 pt-4 px-4 sm:px-6 bg-gradient-to-t from-[#212121] via-[#212121] to-transparent">
           <div className="max-w-3xl mx-auto relative">
             {selectedImage && (
-              <div className="absolute -top-24 left-0 p-2 backdrop-blur-md bg-gray-900/80 rounded-2xl border border-gray-800 shadow-xl">
+              <div className="absolute -top-20 left-4 p-2 backdrop-blur-md bg-[#2F2F2F] rounded-2xl border border-white/10 shadow-xl">
                 <img
                   src={selectedImage}
                   alt="Preview"
-                  className="h-16 w-16 object-cover rounded-lg"
+                  className="h-14 w-14 object-cover rounded-lg"
                 />
                 <button
                   onClick={() => setSelectedImage(null)}
-                  className="absolute -top-2 -right-2 bg-gray-800 hover:bg-red-500 text-white rounded-full p-1 text-xs"
+                  className="absolute -top-2 -right-2 bg-[#212121] hover:bg-red-500 text-white rounded-full p-1 text-xs border border-white/10"
                 >
                   ✕
                 </button>
               </div>
             )}
+            
             <div
-              className={`flex items-center gap-2 p-2 backdrop-blur-md border rounded-full shadow-lg transition-colors ${engineRef.current ? "bg-gray-900/80 border-gray-800 focus-within:border-gray-600" : "bg-gray-900/50 border-gray-800/50 opacity-60"}`}
+              className={`flex items-end gap-2 p-2 bg-[#2F2F2F] border rounded-3xl shadow-lg transition-colors ${engineRef.current ? "border-white/10 focus-within:border-gray-500" : "border-white/5 opacity-60"}`}
             >
               <input
                 type="file"
@@ -572,25 +589,30 @@ export default function Home() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={!engineRef.current}
-                className="p-3 text-gray-400 hover:text-gray-100 hover:bg-gray-800 rounded-full transition-all disabled:hover:bg-transparent"
+                className="p-3 mb-0.5 ml-1 text-gray-400 hover:text-gray-100 hover:bg-[#3F3F3F] rounded-full transition-all disabled:hover:bg-transparent"
               >
                 <ImageIcon size={22} />
               </button>
-              <input
-                type="text"
+              
+              <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && !isGenerating && handleSend()
-                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!isGenerating) handleSend();
+                  }
+                }}
                 placeholder={
                   engineRef.current
-                    ? "Ask about the image..."
+                    ? "Message ODM..."
                     : "Load the AI engine first..."
                 }
                 disabled={isGenerating || !engineRef.current}
-                className="flex-1 bg-transparent text-gray-100 placeholder-gray-500 px-2 focus:outline-none disabled:opacity-50"
+                rows={1}
+                className="flex-1 max-h-32 min-h-[44px] bg-transparent text-gray-100 placeholder-gray-500 px-2 py-3 focus:outline-none resize-none disabled:opacity-50"
               />
+              
               <button
                 onClick={handleSend}
                 disabled={
@@ -598,10 +620,13 @@ export default function Home() {
                   isGenerating ||
                   !engineRef.current
                 }
-                className="p-3 bg-gray-100 text-gray-950 rounded-full hover:bg-white disabled:opacity-50 transition-colors shadow-sm"
+                className="p-3 mb-0.5 mr-1 bg-gray-100 text-[#212121] rounded-full hover:bg-white disabled:opacity-50 transition-colors shadow-sm"
               >
-                <Send size={18} />
+                <Send size={18} className="ml-0.5" />
               </button>
+            </div>
+            <div className="text-center mt-3">
+              <span className="text-[10px] text-gray-500">ODM runs entirely on your device. Responses may occasionally be inaccurate.</span>
             </div>
           </div>
         </footer>

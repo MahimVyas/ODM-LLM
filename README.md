@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ODM (On-Device Multimodal Engine)
+
+ODM is a zero-latency, privacy-first Edge AI application that runs advanced Large Language Models and Vision Transformers entirely within the browser. By leveraging WebAssembly and native WebGPU/CPU limits, ODM eliminates cloud server dependency, ensuring user data never leaves their device.
+
+## Key Features
+
+* **Zero-Latency Edge Inference:** Runs state-of-the-art LLMs (Llama 3.2, Phi-3, Qwen) natively in the browser using `@mlc-ai/web-llm`.
+* **Local Multimodal Vision:** Processes image classification offline via a dedicated Web Worker running `Xenova/resnet-50` compressed to 8-bit quantization (~23MB) for instant local context.
+* **Absolute Privacy:** Inference is computed on the user's hardware. Prompts and images are never transmitted to external APIs.
+* **Persistent Local Storage:** Chat history is saved directly to the device's hard drive using `Dexie.js` (IndexedDB wrapper), preventing RAM bloat while allowing infinite scrollable history.
+* **Enterprise-Grade Authentication:** Protected routes powered by `NextAuth.js` with server-side session validation and Google OAuth integration.
+* **Responsive Dark-Mode UI:** A seamless, ChatGPT-style interface built with Tailwind CSS and Lucide React.
+
+## Tech Stack
+
+* **Framework:** Next.js 16 (App Router)
+* **LLM Engine:** WebLLM (`@mlc-ai/web-llm`)
+* **Vision Engine:** Transformers.js (`@huggingface/transformers`)
+* **Database:** IndexedDB (via `Dexie.js`)
+* **Authentication:** NextAuth.js (Google Provider)
+* **Styling:** Tailwind CSS + PostCSS
+* **Icons:** Lucide React
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+* Node.js (v18 or higher)
+* A Google Cloud Console account (for OAuth credentials)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 1. Clone the Repository
+\`\`\`bash
+git clone https://github.com/yourusername/odm-llm.git
+cd odm-llm/edge-vision-app
+\`\`\`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies
+\`\`\`bash
+npm install
+\`\`\`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Environment Variables
+Create a `.env.local` file in the root directory and add the following keys:
+\`\`\`env
+# Generate using Google Cloud Console -> APIs & Services -> Credentials
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Run `openssl rand -base64 32` in your terminal to generate this
+NEXTAUTH_SECRET=your_secure_random_string
+NEXTAUTH_URL=http://localhost:3000
+\`\`\`
 
-## Learn More
+### 4. Run the Development Server
+**Note:** To prevent Webpack memory leaks when compiling heavy WASM binaries for the Vision worker, explicitly run the server with the `--webpack` flag:
+\`\`\`bash
+npm run dev --webpack
+\`\`\`
+Open [http://localhost:3000](http://localhost:3000) to view the landing page.
 
-To learn more about Next.js, take a look at the following resources:
+## System Architecture
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ODM handles intensive AI computations without freezing the React UI thread by utilizing a multi-worker architecture:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Main Thread:** Handles React state, UI rendering, IndexedDB reads/writes, and Markdown parsing.
+2. **LLM Web Worker (`worker.ts`):** Initializes the WebGPU engine and streams text chunks back to the main thread.
+3. **Vision Web Worker (`vision-worker.ts`):** Independently downloads and compiles the ResNet-50 model, executing image analysis in isolation and sending the highest-confidence label back to the LLM context window.
 
-## Deploy on Vercel
+## Known Issues & Troubleshooting
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* **Next.js Turbopack Crashes:** Next.js 16 uses Turbopack by default, which currently struggles to bundle the `onnxruntime-node` fallbacks within `transformers.js`. Always run the dev server with `npm run dev --webpack`.
+* **Model Download Freezes:** If the browser tab is closed during the initial ~1.2GB model download, the CacheStorage may corrupt. If the AI fails to load, open Chrome DevTools -> Application -> IndexedDB -> `transformers-cache` -> Delete, and refresh the page.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
