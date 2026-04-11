@@ -19,8 +19,8 @@ function cn(...inputs: ClassValue[]) {
 }
 
 export default function SettingsModal() {
-  const isSettingsOpen = useUIStore((state) => state.isSettingsOpen);
-  const toggleSettings = useUIStore((state) => state.toggleSettings);
+  const isSettingsOpen = useUIStore((state: any) => state.isSettingsOpen);
+  const toggleSettings = useUIStore((state: any) => state.toggleSettings);
   const [installedModels, setInstalledModels] = useState({
     llama3: false,
     vision: false
@@ -30,11 +30,13 @@ export default function SettingsModal() {
   async function checkInstalledModels() {
     setIsScanning(true);
     try {
-      const cacheKeys = await caches.keys();
-      setInstalledModels({
-        llama3: cacheKeys.some(key => key.includes('webllm')),
-        vision: cacheKeys.some(key => key.includes('transformers-cache'))
-      });
+      if (typeof window !== 'undefined' && 'caches' in window) {
+        const cacheKeys = await caches.keys();
+        setInstalledModels({
+          llama3: cacheKeys.some(key => key.includes('webllm')),
+          vision: cacheKeys.some(key => key.includes('transformers-cache'))
+        });
+      }
     } catch (e) {
       console.error("Failed to scan cache:", e);
     } finally {

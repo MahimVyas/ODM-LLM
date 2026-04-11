@@ -5,15 +5,15 @@ import { useUIStore } from "@/lib/store";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { memo } from "react";
-import { 
-  MessageSquare, 
-  Plus, 
-  Settings, 
+import {
+  MessageSquare,
+  Plus,
+  Settings,
   User,
   Trash2,
   Menu,
   LogOut,
-  LogIn
+  LogIn,
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -22,21 +22,21 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export default memo(function Sidebar({ 
-  currentChatId, 
-  onSelectChat 
-}: { 
+const Sidebar = memo(function Sidebar({
+  currentChatId,
+  onSelectChat,
+}: {
   currentChatId: string | null;
   onSelectChat: (id: string | null) => void;
 }) {
   const { data: session } = useSession();
-  const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
-  const toggleSidebar = useUIStore((state) => state.toggleSidebar);
-  const toggleSettings = useUIStore((state) => state.toggleSettings);
+  const isSidebarOpen = useUIStore((state: any) => state.isSidebarOpen);
+  const toggleSidebar = useUIStore((state: any) => state.toggleSidebar);
+  const toggleSettings = useUIStore((state: any) => state.toggleSettings);
 
   const chats = useLiveQuery(
     () => db.chats.orderBy("updatedAt").reverse().toArray(),
-    []
+    [],
   );
 
   const deleteChat = async (id: string, e: React.MouseEvent) => {
@@ -63,7 +63,7 @@ export default memo(function Sidebar({
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 w-64 bg-gray-950 border-r border-gray-800 transition-transform duration-300 transform lg:relative lg:translate-x-0",
-          !isSidebarOpen && "-translate-x-full lg:hidden"
+          !isSidebarOpen && "-translate-x-full lg:hidden",
         )}
       >
         <div className="flex flex-col h-full p-4">
@@ -89,11 +89,13 @@ export default memo(function Sidebar({
                   "group flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors",
                   currentChatId === chat.id
                     ? "bg-gray-900 border border-gray-800 text-white shadow-sm"
-                    : "text-gray-400 hover:bg-gray-900/50 hover:text-gray-200"
+                    : "text-gray-400 hover:bg-gray-900/50 hover:text-gray-200",
                 )}
               >
                 <MessageSquare size={16} />
-                <span className="flex-1 truncate text-sm font-medium">{chat.title}</span>
+                <span className="flex-1 truncate text-sm font-medium">
+                  {chat.title}
+                </span>
                 <button
                   onClick={(e) => deleteChat(chat.id, e)}
                   className="opacity-0 group-hover:opacity-100 p-1 hover:text-red-400 transition-opacity"
@@ -106,26 +108,32 @@ export default memo(function Sidebar({
 
           {/* Bottom Profile/Settings */}
           <div className="pt-4 mt-4 border-t border-gray-800 space-y-1">
-            <button 
+            <button
               onClick={toggleSettings}
               className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors"
             >
               <Settings size={18} />
               <span className="text-sm font-medium">Settings</span>
             </button>
-            
+
             {session ? (
               <div className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400">
                 {session.user?.image ? (
-                  <img src={session.user.image} className="w-8 h-8 rounded-full border border-gray-800" alt="Avatar" />
+                  <img
+                    src={session.user.image}
+                    className="w-8 h-8 rounded-full border border-gray-800"
+                    alt="Avatar"
+                  />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 border border-gray-800">
                     <User size={18} />
                   </div>
                 )}
-                <span className="flex-1 text-sm font-medium truncate text-gray-200">{session.user?.name}</span>
-                <button 
-                  onClick={() => signOut()}
+                <span className="flex-1 text-sm font-medium truncate text-gray-200">
+                  {session.user?.name}
+                </span>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
                   className="p-1 hover:text-white transition-colors"
                   title="Sign Out"
                 >
@@ -133,8 +141,8 @@ export default memo(function Sidebar({
                 </button>
               </div>
             ) : (
-              <button 
-                onClick={() => signIn('google')}
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/chat" })}
                 className="flex items-center gap-3 w-full p-3 rounded-xl text-gray-400 hover:bg-gray-900 hover:text-gray-200 transition-colors"
               >
                 <LogIn size={18} />
@@ -147,3 +155,5 @@ export default memo(function Sidebar({
     </>
   );
 });
+
+export default Sidebar;
