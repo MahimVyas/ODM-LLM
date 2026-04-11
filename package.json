@@ -2,11 +2,11 @@
   "name": "edge-vision-app",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
+"scripts": {
     "dev": "next dev --webpack",
-    "build": "next build",
+    "build": "next build --webpack", 
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.0.1",
