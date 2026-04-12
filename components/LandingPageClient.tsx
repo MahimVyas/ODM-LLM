@@ -4,7 +4,6 @@ import { signIn } from "next-auth/react";
 import {
   Zap,
   Shield,
-  Cpu,
   Eye,
   ArrowRight,
   Code,
