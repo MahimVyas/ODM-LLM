@@ -35,28 +35,31 @@ const AVAILABLE_MODELS = [
     name: "Llama 3.2 (1B)",
     params: "1.2B",
     size: "~800 MB",
-    description: "Extremely fast. Best for mobile and basic tasks.",
+    description:
+      "Best for everyday tasks, basic chat, and extreme mobile speed.",
   },
   {
     id: "Phi-3-mini-4k-instruct-q4f16_1-MLC",
     name: "Phi-3 Mini",
     params: "3.8B",
     size: "~2.2 GB",
-    description: "Microsoft's compact powerhouse. Exceptional reasoning.",
+    description: "Excellent for reasoning, math, and logical problem solving.",
   },
   {
     id: "Qwen2-1.5B-Instruct-q4f16_1-MLC",
     name: "Qwen 2 (1.5B)",
     params: "1.5B",
     size: "~1.0 GB",
-    description: "Highly capable and fast, great for multilingual prompts.",
+    description:
+      "Highly capable for coding, structured data, and multilingual tasks.",
   },
   {
     id: "Llama-3-8B-Instruct-q4f32_1-MLC",
     name: "Llama 3 (8B)",
     params: "8.0B",
     size: "~5.0 GB",
-    description: "Heavyweight model. Requires an M-series Mac or 8GB+ RAM PC.",
+    description:
+      "Heavyweight model. Best for complex reasoning and deep knowledge.",
   },
 ];
 
@@ -614,7 +617,7 @@ export default function Home() {
       {/* 🚀 FIX 2: Switched to pure flex column to prevent overlapping on mobile */}
       <div className="flex-1 flex flex-col relative min-w-0 h-[100dvh]">
         {/* --- HEADER --- */}
-        <header className="shrink-0 sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5">
+        <header className="shrink-0 sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5 relative">
           <div className="max-w-4xl mx-auto px-2 sm:px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
               <button
@@ -636,8 +639,23 @@ export default function Home() {
               </div>
             </div>
 
+            {/* 🚀 NEW: CENTERED ACTIVE MODEL BADGE */}
+            {engineRef.current && (
+              <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none animate-in fade-in zoom-in duration-300">
+                <span className="text-[8px] sm:text-[9px] text-emerald-500/80 font-bold uppercase tracking-widest mb-1">
+                  Active Engine
+                </span>
+                <div className="flex items-center gap-1.5 bg-[#2F2F2F] px-3 py-1 rounded-full border border-white/5 shadow-sm">
+                  <Cpu size={12} className="text-emerald-400" />
+                  <span className="text-[10px] sm:text-xs text-gray-200 font-medium whitespace-nowrap">
+                    {activeModel?.name}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-1.5 sm:gap-3 relative">
-              {/* 🚀 SHARE BUTTON */}
+              {/* SHARE BUTTON */}
               {messages.length > 0 && (
                 <button
                   onClick={() => setShowShareModal(true)}
@@ -648,7 +666,7 @@ export default function Home() {
                 </button>
               )}
 
-              {/* 🚀 MODEL SELECTOR (Fixed: Now visible on mobile as an icon) */}
+              {/* MODEL SELECTOR DROPDOWN */}
               {!engineRef.current && !isEngineLoading && (
                 <div className="relative">
                   <button
@@ -697,7 +715,7 @@ export default function Home() {
                 </div>
               )}
 
-              {/* 🚀 GPU DIAGNOSTIC BUTTON */}
+              {/* GPU DIAGNOSTIC BUTTON */}
               {!engineRef.current && !isEngineLoading && (
                 <button
                   onClick={runAppleDiagnostics}
