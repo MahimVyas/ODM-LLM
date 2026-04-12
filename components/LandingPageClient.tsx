@@ -1,13 +1,19 @@
 "use client";
 
 import { signIn } from "next-auth/react";
-import { Zap, Shield, Cpu, Eye, ArrowRight, Code } from "lucide-react";
+import { Zap, Shield, Cpu, Eye, ArrowRight, Code, Linkedin, Github, Terminal, Layers } from "lucide-react";
 import Link from "next/link";
 
 export default function LandingPageClient() {
   const handleAuth = () => {
     signIn("google", { callbackUrl: "/chat" });
   };
+
+  const techStack = [
+    "Next.js 16", "React", "TypeScript", "Tailwind CSS", 
+    "WebGPU", "WebAssembly", "WebLLM", "Transformers.js", 
+    "IndexedDB", "Dexie.js", "NextAuth"
+  ];
 
   return (
     <div className="min-h-screen bg-[#212121] text-gray-50 font-sans selection:bg-gray-700 overflow-x-hidden">
@@ -17,7 +23,6 @@ export default function LandingPageClient() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
             <Cpu className="text-gray-400" size={24} />
-            {/* 📝 Changed ODMC to ODM */}
             <span>ODM<span className="text-gray-500">.</span></span>
           </div>
           <div className="flex items-center gap-4">
@@ -107,7 +112,79 @@ export default function LandingPageClient() {
           </div>
         </div>
       </section>
+
+      {/* 🚀 Tech Stack Section */}
+      <section className="py-24 bg-[#212121] border-t border-white/5">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-[#2F2F2F] text-gray-100 border border-white/10 rounded-xl mb-6">
+            <Layers size={24} />
+          </div>
+          <h2 className="text-3xl font-bold mb-6 tracking-tight">Built for the Modern Web</h2>
+          <p className="text-gray-400 text-lg mb-12 max-w-2xl mx-auto">
+            Engineered using cutting-edge browser APIs and modern web frameworks to deliver native-like AI performance.
+          </p>
+          
+          <div className="flex flex-wrap justify-center gap-3">
+            {techStack.map((tech, index) => (
+              <span 
+                key={index} 
+                className="px-4 py-2 bg-[#2F2F2F] border border-white/5 text-gray-300 rounded-full text-sm font-medium hover:bg-[#3F3F3F] transition-colors cursor-default"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
       
+      {/* 🚀 Footer Section */}
+      <footer className="bg-[#1A1A1A] border-t border-white/5 py-12">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+          
+          {/* Copyright & License */}
+          <div className="text-center md:text-left">
+            <p className="text-gray-200 font-semibold tracking-wide">
+              Developed by <span className="text-white">MAHIM VYAS</span>
+            </p>
+            <p className="text-gray-500 text-sm mt-1">
+              &copy; {new Date().getFullYear()} ODM. Released under the MIT License.
+            </p>
+          </div>
+
+          {/* Social Links */}
+          <div className="flex items-center gap-4">
+            <a 
+              href="https://www.linkedin.com/in/mahimvyas" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2.5 bg-[#2F2F2F] border border-white/5 rounded-xl text-gray-400 hover:text-white hover:bg-[#3F3F3F] transition-all hover:scale-105"
+              title="LinkedIn"
+            >
+              <Linkedin size={20} />
+            </a>
+            <a 
+              href="https://github.com/MahimVyas" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2.5 bg-[#2F2F2F] border border-white/5 rounded-xl text-gray-400 hover:text-white hover:bg-[#3F3F3F] transition-all hover:scale-105"
+              title="GitHub"
+            >
+              <Github size={20} />
+            </a>
+            <a 
+              href="https://leetcode.com/u/mahimvyas/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2.5 bg-[#2F2F2F] border border-white/5 rounded-xl text-gray-400 hover:text-white hover:bg-[#3F3F3F] transition-all hover:scale-105"
+              title="LeetCode"
+            >
+              <Terminal size={20} />
+            </a>
+          </div>
+
+        </div>
+      </footer>
+
     </div>
   );
 }
