@@ -538,50 +538,49 @@ export default function Home() {
       {/* 🚀 FIX 2: Switched to pure flex column to prevent overlapping on mobile */}
       <div className="flex-1 flex flex-col relative min-w-0 h-[100dvh]">
         
-        {/* --- HEADER --- */}
+{/* --- HEADER --- */}
         <header className="shrink-0 sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5">
-          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="max-w-4xl mx-auto px-2 sm:px-4 py-3 flex items-center justify-between">
             
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button 
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="md:hidden p-2 -ml-2 text-gray-400 hover:text-gray-100 rounded-lg hover:bg-[#2F2F2F] transition"
+                className="md:hidden p-2 -ml-1 text-gray-400 hover:text-gray-100 rounded-lg hover:bg-[#2F2F2F] transition"
               >
                 <Menu size={22} />
               </button>
 
               <div>
-                <h1 className="text-2xl font-bold tracking-tighter text-gray-100 leading-none mb-0.5 cursor-default">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tighter text-gray-100 leading-none mb-0.5 cursor-default">
                   ODM<span className="text-gray-500">.</span>
                 </h1>
-                <p className="text-xs text-gray-400 font-medium hidden sm:block">
+                <p className="text-[10px] sm:text-xs text-gray-400 font-medium hidden sm:block">
                   {engineRef.current ? "AI Active - Secure & Local" : "AI Offline"}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 relative">
+            <div className="flex items-center gap-1.5 sm:gap-3 relative">
               
+              {/* 🚀 SHARE BUTTON (Now visible on mobile, text hidden to save space) */}
               {messages.length > 0 && (
                 <button
                   onClick={() => setShowShareModal(true)}
-                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm"
+                  className="flex items-center gap-2 px-2 sm:px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm"
                 >
                   <Share size={16} className="text-gray-400" />
-                  <span>Share</span>
+                  <span className="hidden sm:inline">Share</span>
                 </button>
               )}
 
               {!engineRef.current && !isEngineLoading && (
-                <div className="relative">
+                <div className="relative hidden sm:block">
                   <button
                     onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
                     className="flex items-center gap-2 px-3 py-2 bg-[#2F2F2F] border border-white/10 rounded-lg text-sm font-medium hover:bg-[#3F3F3F] transition text-gray-100 shadow-sm"
                   >
                     <Cpu size={16} className="text-gray-400" />
-                    <span className="hidden sm:inline">
-                      {activeModel?.name}
-                    </span>
+                    <span>{activeModel?.name}</span>
                     <ChevronDown size={14} className="text-gray-500" />
                   </button>
 
@@ -616,33 +615,34 @@ export default function Home() {
                 </div>
               )}
 
-              {/* Temp Diagnostic Button */}
+              {/* 🚀 GPU DIAGNOSTIC BUTTON (Now visible on mobile, slightly smaller) */}
               {!engineRef.current && !isEngineLoading && (
-                <button onClick={runAppleDiagnostics} className="text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg hover:bg-red-500/20 transition hidden sm:block">
+                <button onClick={runAppleDiagnostics} className="text-[10px] sm:text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-red-500/20 transition">
                   Test GPU
                 </button>
               )}
 
+              {/* LOAD ENGINE BUTTON (Text hidden on mobile, icon only) */}
               {!engineRef.current && !isEngineLoading && (
                 <button
                   onClick={initializeEngine}
-                  className="text-sm bg-gray-100 hover:bg-white text-[#212121] px-4 sm:px-5 py-2 rounded-lg shadow-sm transition flex items-center gap-2 font-semibold"
+                  className="text-sm bg-gray-100 hover:bg-white text-[#212121] px-2.5 sm:px-5 py-1.5 sm:py-2 rounded-lg shadow-sm transition flex items-center gap-2 font-semibold"
                 >
                   <DownloadCloud size={16} /> <span className="hidden sm:inline">Load Engine</span>
                 </button>
               )}
 
               {/* MODE VISUALIZER */}
-              <div className="flex items-center gap-2 px-2.5 py-1.5 bg-[#1A1A1A] border border-white/5 rounded-lg ml-1 sm:ml-2 min-w-[70px] sm:min-w-[85px] transition-all duration-500 shadow-inner">
+              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 bg-[#1A1A1A] border border-white/5 rounded-lg ml-0.5 sm:ml-2 min-w-[65px] sm:min-w-[85px] transition-all duration-500 shadow-inner">
                 <div className="relative flex h-2 w-2 shrink-0 mt-0.5">
                   <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isOnline ? 'bg-emerald-400 animate-ping' : 'bg-amber-400 animate-pulse'}`}></span>
                   <span className={`relative inline-flex rounded-full h-2 w-2 ${isOnline ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  <span className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? 'text-emerald-400' : 'text-amber-400'}`}>
                     {isOnline ? "Online" : "Offline"}
                   </span>
-                  <span className="text-[7px] sm:text-[8px] text-gray-500 leading-none transition-all duration-300 truncate hidden sm:block">
+                  <span className="text-[6px] sm:text-[8px] text-gray-500 leading-none transition-all duration-300 truncate hidden sm:block">
                     {isOnline ? "Sync Ready" : "Local Mode"}
                   </span>
                 </div>
