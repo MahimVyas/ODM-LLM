@@ -705,6 +705,13 @@ export default function Home() {
                 </button>
               )}
 
+              <button
+                onClick={runAppleDiagnostics}
+                className="text-xs bg-red-500/20 text-red-400 px-3 py-2 rounded-lg"
+              >
+                Test GPU
+              </button>
+
               {!engineRef.current && !isEngineLoading && (
                 <button
                   onClick={initializeEngine}
