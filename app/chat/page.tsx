@@ -18,7 +18,8 @@ import {
   MessageCircle,
   Link2,
   FileText,
-  MonitorSmartphone, // 👈 New Icon for Mobile Warning
+  MonitorSmartphone,
+  ArrowLeft, // 👈 Added ArrowLeft for the return button
 } from "lucide-react";
 import { CreateWebWorkerMLCEngine } from "@mlc-ai/web-llm";
 import ReactMarkdown from "react-markdown";
@@ -30,7 +31,6 @@ import OnboardingGuide from "@/components/OnboardingGuide";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-// 🚀 UPDATED: Specific use-case descriptions for each model
 const AVAILABLE_MODELS = [
   {
     id: "Llama-3.2-1B-Instruct-q4f16_1-MLC",
@@ -541,11 +541,20 @@ export default function Home() {
         <h2 className="text-2xl font-bold tracking-tight text-white mb-3">
           Desktop Required
         </h2>
-        <p className="text-sm text-gray-400 leading-relaxed max-w-[280px]">
+        <p className="text-sm text-gray-400 leading-relaxed max-w-[280px] mb-8">
           The current iteration of ODM relies on raw hardware power to run local
           AI models entirely in the browser. Mobile devices lack the required
           memory and WebGPU support.
         </p>
+        
+        {/* 🚀 BACK TO HOME BUTTON */}
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-white text-[#212121] rounded-full font-semibold transition-all shadow-sm"
+        >
+          <ArrowLeft size={18} /> Return to Home
+        </button>
+
         <div className="mt-10 px-5 py-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-2.5 shadow-inner">
           <div className="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></div>
           <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">
@@ -640,24 +649,23 @@ export default function Home() {
         </div>
       )}
 
-      <div className="flex-1 flex flex-col relative min-w-0">
-        
+      <div className="flex-1 flex flex-col relative min-w-0 h-full w-full">
         {/* --- HEADER --- */}
-        <header className="sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5 relative">
-          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        <header className="shrink-0 sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5 relative">
+          <div className="max-w-4xl mx-auto px-2 sm:px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 sm:gap-3">
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="md:hidden p-2 -ml-2 text-gray-400 hover:text-gray-100 rounded-lg hover:bg-[#2F2F2F] transition"
+                className="md:hidden p-2 -ml-1 text-gray-400 hover:text-gray-100 rounded-lg hover:bg-[#2F2F2F] transition"
               >
                 <Menu size={22} />
               </button>
 
               <div>
-                <h1 className="text-2xl font-bold tracking-tighter text-gray-100 leading-none mb-0.5 cursor-default">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tighter text-gray-100 leading-none mb-0.5 cursor-default">
                   ODM<span className="text-gray-500">.</span>
                 </h1>
-                <p className="text-xs text-gray-400 font-medium hidden sm:block">
+                <p className="text-[10px] sm:text-xs text-gray-400 font-medium hidden sm:block">
                   {engineRef.current
                     ? "AI Active - Secure & Local"
                     : "AI Offline"}
@@ -665,42 +673,46 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 🚀 CENTERED ACTIVE MODEL BADGE */}
+            {/* CENTERED ACTIVE MODEL BADGE */}
             {engineRef.current && (
               <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none animate-in fade-in zoom-in duration-300">
-                <span className="text-[9px] text-emerald-500/80 font-bold uppercase tracking-widest mb-1">
+                <span className="text-[8px] sm:text-[9px] text-emerald-500/80 font-bold uppercase tracking-widest mb-1">
                   Active Engine
                 </span>
                 <div className="flex items-center gap-1.5 bg-[#2F2F2F] px-3 py-1 rounded-full border border-white/5 shadow-sm">
                   <Cpu size={12} className="text-emerald-400" />
-                  <span className="text-xs text-gray-200 font-medium whitespace-nowrap">
+                  <span className="text-[10px] sm:text-xs text-gray-200 font-medium whitespace-nowrap">
                     {activeModel?.name}
                   </span>
                 </div>
               </div>
             )}
 
-            <div className="flex items-center gap-3 relative">
+            <div className="flex items-center gap-1.5 sm:gap-3 relative">
+              {/* SHARE BUTTON */}
               {messages.length > 0 && (
                 <button
                   onClick={() => setShowShareModal(true)}
-                  className="flex items-center gap-2 px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm"
+                  className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm"
                 >
                   <Share size={16} className="text-gray-400" />
-                  <span>Share</span>
+                  <span className="hidden sm:inline">Share</span>
                 </button>
               )}
 
+              {/* MODEL SELECTOR DROPDOWN */}
               {!engineRef.current && !isEngineLoading && (
                 <div className="relative">
                   <button
                     onClick={() =>
                       setIsModelDropdownOpen(!isModelDropdownOpen)
                     }
-                    className="flex items-center gap-2 px-3 py-2 bg-[#2F2F2F] border border-white/10 rounded-lg text-sm font-medium hover:bg-[#3F3F3F] transition text-gray-100 shadow-sm"
+                    className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#2F2F2F] border border-white/10 rounded-lg text-sm font-medium hover:bg-[#3F3F3F] transition text-gray-100 shadow-sm"
                   >
                     <Cpu size={16} className="text-gray-400" />
-                    <span>{activeModel?.name}</span>
+                    <span className="hidden sm:inline">
+                      {activeModel?.name}
+                    </span>
                     <ChevronDown size={14} className="text-gray-500" />
                   </button>
 
@@ -739,26 +751,29 @@ export default function Home() {
                 </div>
               )}
 
+              {/* GPU DIAGNOSTIC BUTTON */}
               {!engineRef.current && !isEngineLoading && (
                 <button
                   onClick={runAppleDiagnostics}
-                  className="text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg hover:bg-red-500/20 transition"
+                  className="text-[10px] sm:text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-red-500/20 transition"
                 >
                   Test GPU
                 </button>
               )}
 
+              {/* LOAD ENGINE BUTTON */}
               {!engineRef.current && !isEngineLoading && (
                 <button
                   onClick={initializeEngine}
-                  className="text-sm bg-gray-100 hover:bg-white text-[#212121] px-5 py-2 rounded-lg shadow-sm transition flex items-center gap-2 font-semibold"
+                  className="text-sm bg-gray-100 hover:bg-white text-[#212121] px-2.5 sm:px-5 py-1.5 sm:py-2 rounded-lg shadow-sm transition flex items-center gap-2 font-semibold"
                 >
                   <DownloadCloud size={16} />{" "}
-                  <span>Load Engine</span>
+                  <span className="hidden sm:inline">Load Engine</span>
                 </button>
               )}
 
-              <div className="flex items-center gap-2 px-2.5 py-1.5 bg-[#1A1A1A] border border-white/5 rounded-lg ml-2 min-w-[85px] transition-all duration-500 shadow-inner">
+              {/* MODE VISUALIZER */}
+              <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 bg-[#1A1A1A] border border-white/5 rounded-lg ml-0.5 sm:ml-2 min-w-[65px] sm:min-w-[85px] transition-all duration-500 shadow-inner">
                 <div className="relative flex h-2 w-2 shrink-0 mt-0.5">
                   <span
                     className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isOnline ? "bg-emerald-400 animate-ping" : "bg-amber-400 animate-pulse"}`}
@@ -769,11 +784,11 @@ export default function Home() {
                 </div>
                 <div className="flex flex-col justify-center">
                   <span
-                    className={`text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? "text-emerald-400" : "text-amber-400"}`}
+                    className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? "text-emerald-400" : "text-amber-400"}`}
                   >
                     {isOnline ? "Online" : "Offline"}
                   </span>
-                  <span className="text-[8px] text-gray-500 leading-none transition-all duration-300 truncate">
+                  <span className="text-[6px] sm:text-[8px] text-gray-500 leading-none transition-all duration-300 truncate hidden sm:block">
                     {isOnline ? "Sync Ready" : "Local Mode"}
                   </span>
                 </div>
@@ -861,9 +876,10 @@ export default function Home() {
           </div>
         )}
 
-        <main className="flex-1 overflow-y-auto px-4 sm:px-6 pt-12 pb-32 max-w-3xl w-full mx-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        {/* --- MAIN CHAT AREA --- */}
+        <main className="flex-1 overflow-y-auto px-4 sm:px-6 pt-6 pb-4 max-w-3xl w-full mx-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {messages.length === 0 && !streamingContent ? (
-            <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-4 mt-12">
+            <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-4">
               <div className="text-5xl font-bold tracking-tighter text-gray-200 mb-2 select-none cursor-default">
                 ODM<span className="text-gray-600">.</span>
               </div>
@@ -916,7 +932,8 @@ export default function Home() {
           )}
         </main>
 
-        <footer className="absolute bottom-0 w-full z-10 pb-6 pt-4 px-4 sm:px-6 bg-gradient-to-t from-[#212121] via-[#212121] to-transparent">
+        {/* --- BOTTOM INPUT BAR --- */}
+        <footer className="shrink-0 w-full z-10 pb-4 sm:pb-6 pt-2 px-4 sm:px-6 bg-[#212121]">
           <div className="max-w-3xl mx-auto relative">
             {selectedImage && (
               <div className="absolute bottom-full mb-4 left-4 p-2 backdrop-blur-md bg-[#2F2F2F] rounded-2xl border border-white/10 shadow-xl">
