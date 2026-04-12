@@ -392,9 +392,12 @@ export default function Home() {
           },
         },
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to load engine:", error);
-      setLoadingText("Failed to load AI.");
+      // 🚀 Alert the user so it doesn't fail silently!
+      alert(
+        `Initialization Failed: ${error.message || "Your device may not support WebGPU or ran out of memory."}`,
+      );
       engineWorkerRef.current?.terminate();
       engineWorkerRef.current = null;
     } finally {
