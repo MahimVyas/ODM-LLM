@@ -5,7 +5,6 @@ import {
   Camera,
   Image as ImageIcon,
   Send,
-  Sparkles,
   Loader2,
   DownloadCloud,
   ChevronDown,
@@ -191,8 +190,6 @@ export default function Home() {
   const router = useRouter();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
-  // 🚀 Network Mode State
   const [isOnline, setIsOnline] = useState(true);
 
   // Share Modal States
@@ -206,11 +203,8 @@ export default function Home() {
     }
   }, [status, router]);
 
-  // 🚀 Network Mode Listeners
   useEffect(() => {
-    // Set initial state safely on client
     setIsOnline(navigator.onLine);
-
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
@@ -224,7 +218,6 @@ export default function Home() {
   }, []);
 
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-
   const [activeModelId, setActiveModelId] = useState<string>(
     AVAILABLE_MODELS[0].id,
   );
@@ -266,9 +259,7 @@ export default function Home() {
     if (!visionWorkerRef.current) {
       visionWorkerRef.current = new Worker(
         new URL("../vision-worker.ts", import.meta.url),
-        {
-          type: "module",
-        },
+        { type: "module" },
       );
     }
     return visionWorkerRef.current;
@@ -295,6 +286,35 @@ export default function Home() {
       </div>
     );
   }
+
+  // Apple GPU Diagnostics Function
+  const runAppleDiagnostics = async () => {
+    try {
+      // 🚀 Fix: Cast navigator to 'any' to bypass TypeScript's missing WebGPU types
+      const nav = navigator as any;
+
+      if (!nav.gpu) {
+        alert(
+          "❌ WebGPU is completely disabled or not supported on this browser.",
+        );
+        return;
+      }
+      const adapter = await nav.gpu.requestAdapter();
+      if (!adapter) {
+        alert(
+          "❌ WebGPU is turned on, but Apple refused to provide a GPU adapter for this site.",
+        );
+        return;
+      }
+
+      const hasF16 = adapter.features.has("shader-f16");
+      alert(
+        `✅ WebGPU is working!\nGPU: ${adapter.name || "Apple GPU"}\nF16 Support: ${hasF16 ? "Yes" : "No (Models may crash)"}`,
+      );
+    } catch (e: any) {
+      alert(`Diagnostic Error: ${e.message}`);
+    }
+  };
 
   const getFormattedChat = () => {
     return messages
@@ -394,7 +414,6 @@ export default function Home() {
       );
     } catch (error: any) {
       console.error("Failed to load engine:", error);
-      // 🚀 Alert the user so it doesn't fail silently!
       alert(
         `Initialization Failed: ${error.message || "Your device may not support WebGPU or ran out of memory."}`,
       );
@@ -605,12 +624,9 @@ export default function Home() {
                 <Menu size={22} />
               </button>
 
-              <div className="hidden sm:flex p-2 bg-[#2F2F2F] text-gray-100 rounded-xl border border-white/10">
-                <Sparkles size={18} />
-              </div>
               <div>
-                <h1 className="text-lg font-semibold tracking-tight text-gray-100">
-                  ODM
+                <h1 className="text-2xl font-bold tracking-tighter text-gray-100 leading-none mb-0.5 cursor-default">
+                  ODM<span className="text-gray-500">.</span>
                 </h1>
                 <p className="text-xs text-gray-400 font-medium hidden sm:block">
                   {engineRef.current
@@ -679,6 +695,16 @@ export default function Home() {
                 </div>
               )}
 
+              {/* Temp Diagnostic Button */}
+              {!engineRef.current && !isEngineLoading && (
+                <button
+                  onClick={runAppleDiagnostics}
+                  className="text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-3 py-2 rounded-lg hover:bg-red-500/20 transition hidden sm:block"
+                >
+                  Test GPU
+                </button>
+              )}
+
               {!engineRef.current && !isEngineLoading && (
                 <button
                   onClick={initializeEngine}
@@ -689,7 +715,7 @@ export default function Home() {
                 </button>
               )}
 
-              {/* 🚀 MODE VISUALIZER */}
+              {/* MODE VISUALIZER */}
               <div className="flex items-center gap-2 px-2.5 py-1.5 bg-[#1A1A1A] border border-white/5 rounded-lg ml-1 sm:ml-2 min-w-[70px] sm:min-w-[85px] transition-all duration-500 shadow-inner">
                 <div className="relative flex h-2 w-2 shrink-0 mt-0.5">
                   <span
