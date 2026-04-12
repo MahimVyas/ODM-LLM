@@ -159,6 +159,7 @@ export default function Home() {
   const engineRef = useRef<any>(null);
   const engineWorkerRef = useRef<Worker | null>(null);
   const visionWorkerRef = useRef<Worker | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isEngineLoading, setIsEngineLoading] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingText, setLoadingText] = useState("Preparing download...");
@@ -189,6 +190,14 @@ export default function Home() {
       engineWorkerRef.current?.terminate();
     };
   }, []);
+
+  // 🚀 2. ADD THIS AUTO-SCROLL EFFECT
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
+  }, [messages, streamingContent, visionStatus]);
 
   if (status === "loading" || status === "unauthenticated") {
     return (
@@ -592,6 +601,9 @@ export default function Home() {
                   </div>
                 </div>
               )}
+
+              {/* 🚀 Invisible Anchor for Auto-Scroll */}
+              <div ref={messagesEndRef} className="h-4 w-full shrink-0" />
             </div>
           )}
         </main>
