@@ -11,14 +11,14 @@ import {
   ChevronDown,
   Cpu,
   Menu,
-  Copy, 
-  Check, 
-  Pencil, 
+  Copy,
+  Check,
+  Pencil,
   Share,
   X,
   MessageCircle,
   Link2,
-  FileText
+  FileText,
 } from "lucide-react";
 import { CreateWebWorkerMLCEngine } from "@mlc-ai/web-llm";
 import ReactMarkdown from "react-markdown";
@@ -36,110 +36,154 @@ const AVAILABLE_MODELS = [
     name: "Llama 3.2 (1B)",
     params: "1.2B",
     size: "~800 MB",
-    description: "Extremely fast. Best for mobile and basic tasks."
+    description: "Extremely fast. Best for mobile and basic tasks.",
   },
   {
     id: "Phi-3-mini-4k-instruct-q4f16_1-MLC",
     name: "Phi-3 Mini",
     params: "3.8B",
     size: "~2.2 GB",
-    description: "Microsoft's compact powerhouse. Exceptional reasoning."
+    description: "Microsoft's compact powerhouse. Exceptional reasoning.",
   },
   {
     id: "Qwen2-1.5B-Instruct-q4f16_1-MLC",
     name: "Qwen 2 (1.5B)",
     params: "1.5B",
     size: "~1.0 GB",
-    description: "Highly capable and fast, great for multilingual prompts."
+    description: "Highly capable and fast, great for multilingual prompts.",
   },
   {
     id: "Llama-3-8B-Instruct-q4f32_1-MLC",
     name: "Llama 3 (8B)",
     params: "8.0B",
     size: "~5.0 GB",
-    description: "Heavyweight model. Requires an M-series Mac or 8GB+ RAM PC."
-  }
+    description: "Heavyweight model. Requires an M-series Mac or 8GB+ RAM PC.",
+  },
 ];
 
-const MessageItem = memo(({ role, content, onEdit }: { role: string; content: string; onEdit: (text: string) => void }) => {
-  const [isCopied, setIsCopied] = useState(false);
+const MessageItem = memo(
+  ({
+    role,
+    content,
+    onEdit,
+  }: {
+    role: string;
+    content: string;
+    onEdit: (text: string) => void;
+  }) => {
+    const [isCopied, setIsCopied] = useState(false);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(content);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
-  };
+    const handleCopy = () => {
+      navigator.clipboard.writeText(content);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    };
 
-  return (
-    <div className={`group flex w-full ${role === "user" ? "justify-end" : "justify-start"} mb-6`}>
-      <div className={`flex flex-col gap-1.5 w-full ${role === "user" ? "items-end" : "items-start"}`}>
-        
+    return (
+      <div
+        className={`group flex w-full ${role === "user" ? "justify-end" : "justify-start"} mb-6`}
+      >
         <div
-          className={`px-5 py-3.5 max-w-[90%] md:max-w-[80%] overflow-x-auto ${
-            role === "user"
-              ? "bg-[#2F2F2F] text-gray-100 rounded-3xl whitespace-pre-wrap"
-              : "bg-transparent text-gray-100"
-          }`}
+          className={`flex flex-col gap-1.5 w-full ${role === "user" ? "items-end" : "items-start"}`}
         >
-          {role === "user" ? (
-            content
-          ) : (
-            <ReactMarkdown
-              components={{
-                code({ node, inline, className, children, ...props }: any) {
-                  return !inline ? (
-                    <pre className="bg-[#0D0D0D] p-4 rounded-xl overflow-x-auto my-3 border border-white/5 font-mono text-sm leading-relaxed shadow-inner">
-                      <code className="text-gray-300" {...props}>
+          <div
+            className={`px-5 py-3.5 max-w-[90%] md:max-w-[80%] overflow-x-auto ${
+              role === "user"
+                ? "bg-[#2F2F2F] text-gray-100 rounded-3xl whitespace-pre-wrap"
+                : "bg-transparent text-gray-100"
+            }`}
+          >
+            {role === "user" ? (
+              content
+            ) : (
+              <ReactMarkdown
+                components={{
+                  code({ node, inline, className, children, ...props }: any) {
+                    return !inline ? (
+                      <pre className="bg-[#0D0D0D] p-4 rounded-xl overflow-x-auto my-3 border border-white/5 font-mono text-sm leading-relaxed shadow-inner">
+                        <code className="text-gray-300" {...props}>
+                          {children}
+                        </code>
+                      </pre>
+                    ) : (
+                      <code
+                        className="bg-[#2F2F2F] px-1.5 py-0.5 rounded text-gray-200 font-mono text-sm"
+                        {...props}
+                      >
                         {children}
                       </code>
-                    </pre>
-                  ) : (
-                    <code className="bg-[#2F2F2F] px-1.5 py-0.5 rounded text-gray-200 font-mono text-sm" {...props}>
+                    );
+                  },
+                  p: ({ children }) => (
+                    <div className="mb-3 last:mb-0 leading-relaxed">
                       {children}
-                    </code>
-                  );
-                },
-                p: ({ children }) => <div className="mb-3 last:mb-0 leading-relaxed">{children}</div>,
-                ul: ({ children }) => <ul className="list-disc ml-6 mb-3 space-y-1">{children}</ul>,
-                ol: ({ children }) => <ol className="list-decimal ml-6 mb-3 space-y-1">{children}</ol>,
-                li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
-                a: ({ children, href }) => (
-                  <a href={href} className="text-blue-400 hover:underline transition-colors" target="_blank" rel="noopener noreferrer">
-                    {children}
-                  </a>
-                ),
-              }}
-            >
-              {content}
-            </ReactMarkdown>
-          )}
-        </div>
+                    </div>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="list-disc ml-6 mb-3 space-y-1">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="list-decimal ml-6 mb-3 space-y-1">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="leading-relaxed">{children}</li>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-semibold text-white">
+                      {children}
+                    </strong>
+                  ),
+                  a: ({ children, href }) => (
+                    <a
+                      href={href}
+                      className="text-blue-400 hover:underline transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
+                {content}
+              </ReactMarkdown>
+            )}
+          </div>
 
-        <div className={`flex items-center gap-1 ${role === "user" ? "pr-4" : "pl-1"} opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200`}>
-          <button 
-            onClick={handleCopy} 
-            className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors" 
-            title="Copy Text"
+          <div
+            className={`flex items-center gap-1 ${role === "user" ? "pr-4" : "pl-1"} opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200`}
           >
-            {isCopied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-          </button>
-          
-          {role === "user" && (
-            <button 
-              onClick={() => onEdit(content)} 
-              className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors" 
-              title="Edit Prompt"
+            <button
+              onClick={handleCopy}
+              className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors"
+              title="Copy Text"
             >
-              <Pencil size={14} />
+              {isCopied ? (
+                <Check size={14} className="text-emerald-400" />
+              ) : (
+                <Copy size={14} />
+              )}
             </button>
-          )}
-        </div>
 
+            {role === "user" && (
+              <button
+                onClick={() => onEdit(content)}
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors"
+                title="Edit Prompt"
+              >
+                <Pencil size={14} />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 MessageItem.displayName = "MessageItem";
 
 export default function Home() {
@@ -147,7 +191,7 @@ export default function Home() {
   const router = useRouter();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+
   // 🚀 Network Mode State
   const [isOnline, setIsOnline] = useState(true);
 
@@ -180,18 +224,21 @@ export default function Home() {
   }, []);
 
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  
-  const [activeModelId, setActiveModelId] = useState<string>(AVAILABLE_MODELS[0].id);
-  const [isModelDropdownOpen, setIsModelDropdownOpen] = useState<boolean>(false);
-  const activeModel = AVAILABLE_MODELS.find(m => m.id === activeModelId);
-  
+
+  const [activeModelId, setActiveModelId] = useState<string>(
+    AVAILABLE_MODELS[0].id,
+  );
+  const [isModelDropdownOpen, setIsModelDropdownOpen] =
+    useState<boolean>(false);
+  const activeModel = AVAILABLE_MODELS.find((m) => m.id === activeModelId);
+
   const dbMessages = useLiveQuery(
     async () => {
       if (!currentChatId) return [];
       return await db.messages.where("chatId").equals(currentChatId).toArray();
     },
     [currentChatId],
-    [] as any[]
+    [] as any[],
   );
 
   const [input, setInput] = useState("");
@@ -201,7 +248,7 @@ export default function Home() {
   const engineWorkerRef = useRef<Worker | null>(null);
   const visionWorkerRef = useRef<Worker | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null); 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [isEngineLoading, setIsEngineLoading] = useState(false);
@@ -209,7 +256,7 @@ export default function Home() {
   const [loadingText, setLoadingText] = useState("Preparing download...");
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [visionStatus, setVisionStatus] = useState(""); 
+  const [visionStatus, setVisionStatus] = useState("");
   const [streamingContent, setStreamingContent] = useState("");
   const [showInitConfirm, setShowInitConfirm] = useState(false);
 
@@ -235,7 +282,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
   }, [messages, streamingContent, visionStatus]);
 
   if (status === "loading" || status === "unauthenticated") {
@@ -247,12 +297,17 @@ export default function Home() {
   }
 
   const getFormattedChat = () => {
-    return messages.map((m: any) => `${m.role === 'user' ? 'You' : 'ODM'}:\n${m.content}`).join('\n\n---\n\n');
+    return messages
+      .map((m: any) => `${m.role === "user" ? "You" : "ODM"}:\n${m.content}`)
+      .join("\n\n---\n\n");
   };
 
   const handleWhatsAppShare = () => {
     const text = getFormattedChat();
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Check out this conversation with ODM AI:\n\n" + text)}`, '_blank');
+    window.open(
+      `https://api.whatsapp.com/send?text=${encodeURIComponent("Check out this conversation with ODM AI:\n\n" + text)}`,
+      "_blank",
+    );
     setShowShareModal(false);
   };
 
@@ -269,9 +324,11 @@ export default function Home() {
     try {
       const encodedChat = btoa(encodeURIComponent(JSON.stringify(messages)));
       const shareUrl = `${window.location.origin}/share?data=${encodedChat}`;
-      
+
       if (shareUrl.length > 2000) {
-        alert("This chat is too long to generate a local link. Please use 'Copy Text' instead.");
+        alert(
+          "This chat is too long to generate a local link. Please use 'Copy Text' instead.",
+        );
         return;
       }
       navigator.clipboard.writeText(shareUrl);
@@ -287,13 +344,13 @@ export default function Home() {
 
   const handleEditPrompt = (text: string) => {
     setInput(text);
-    textareaRef.current?.focus(); 
+    textareaRef.current?.focus();
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      ensureVisionWorker(); 
+      ensureVisionWorker();
       setSelectedImage(URL.createObjectURL(file));
 
       const reader = new FileReader();
@@ -319,12 +376,12 @@ export default function Home() {
 
     try {
       engineWorkerRef.current?.terminate();
-      
+
       const worker = new Worker(new URL("../worker.ts", import.meta.url), {
         type: "module",
       });
       engineWorkerRef.current = worker;
-      
+
       engineRef.current = await CreateWebWorkerMLCEngine(
         worker,
         selectedModel,
@@ -350,9 +407,9 @@ export default function Home() {
     if (!engineRef.current) return;
 
     setIsGenerating(true);
-    ensureVisionWorker(); 
+    ensureVisionWorker();
     let chatId = currentChatId;
-    
+
     if (!chatId) {
       chatId = crypto.randomUUID();
       await db.chats.add({
@@ -395,13 +452,16 @@ export default function Home() {
         setVisionStatus("");
       }
 
-      const promptWithContext = imageCaption 
+      const promptWithContext = imageCaption
         ? `[System Context: The user has uploaded an image. A local vision model analyzed it and detected: "${imageCaption}". Use this context to answer the user's prompt.] \n\nUser prompt: ${finalPrompt}`
         : finalPrompt;
 
       setSelectedImage(null);
 
-      const apiMessages = messages.map((msg: any) => ({ role: msg.role, content: msg.content }));
+      const apiMessages = messages.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+      }));
       apiMessages.push({ role: "user", content: promptWithContext });
 
       const chunks = await engineRef.current.chat.completions.create({
@@ -412,7 +472,7 @@ export default function Home() {
 
       let fullReply = "";
       setStreamingContent("");
-      
+
       for await (const chunk of chunks) {
         const delta = chunk.choices[0]?.delta?.content || "";
         fullReply += delta;
@@ -425,9 +485,8 @@ export default function Home() {
         content: fullReply,
         hasImage: false,
       });
-      
-      await db.chats.update(chatId, { updatedAt: Date.now() });
 
+      await db.chats.update(chatId, { updatedAt: Date.now() });
     } catch (error) {
       console.error("Generation error:", error);
       await db.messages.add({
@@ -445,21 +504,22 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-[#212121] text-gray-100 font-sans selection:bg-gray-700 overflow-hidden relative">
-      
       {isMobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      <div className={`fixed inset-y-0 left-0 z-50 transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex`}>
-        <Sidebar 
-          currentChatId={currentChatId} 
+      <div
+        className={`fixed inset-y-0 left-0 z-50 transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex`}
+      >
+        <Sidebar
+          currentChatId={currentChatId}
           onSelectChat={(id) => {
             setCurrentChatId(id);
             setIsMobileMenuOpen(false);
-          }} 
+          }}
         />
       </div>
 
@@ -471,8 +531,10 @@ export default function Home() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="w-full max-w-sm bg-[#212121] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-5 border-b border-white/5 bg-[#1A1A1A]">
-              <h2 className="text-lg font-semibold text-white tracking-tight">Share Chat</h2>
-              <button 
+              <h2 className="text-lg font-semibold text-white tracking-tight">
+                Share Chat
+              </h2>
+              <button
                 onClick={() => setShowShareModal(false)}
                 className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-full transition-colors"
               >
@@ -480,32 +542,39 @@ export default function Home() {
               </button>
             </div>
             <div className="p-4 space-y-2 bg-[#212121]">
-              
-              <button 
+              <button
                 onClick={handleCopyLink}
                 className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
               >
                 <div className="flex items-center gap-3 text-gray-200">
                   <div className="p-2 bg-[#212121] rounded-lg border border-white/5 group-hover:border-white/10">
-                    {shareLinkCopied ? <Check size={18} className="text-emerald-400" /> : <Link2 size={18} />}
+                    {shareLinkCopied ? (
+                      <Check size={18} className="text-emerald-400" />
+                    ) : (
+                      <Link2 size={18} />
+                    )}
                   </div>
                   <span className="font-medium text-sm">Copy Link</span>
                 </div>
               </button>
 
-              <button 
+              <button
                 onClick={handleCopyText}
                 className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
               >
                 <div className="flex items-center gap-3 text-gray-200">
                   <div className="p-2 bg-[#212121] rounded-lg border border-white/5 group-hover:border-white/10">
-                    {shareTextCopied ? <Check size={18} className="text-emerald-400" /> : <FileText size={18} />}
+                    {shareTextCopied ? (
+                      <Check size={18} className="text-emerald-400" />
+                    ) : (
+                      <FileText size={18} />
+                    )}
                   </div>
                   <span className="font-medium text-sm">Copy Text</span>
                 </div>
               </button>
 
-              <button 
+              <button
                 onClick={handleWhatsAppShare}
                 className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
               >
@@ -516,20 +585,17 @@ export default function Home() {
                   <span className="font-medium text-sm">WhatsApp</span>
                 </div>
               </button>
-
             </div>
           </div>
         </div>
       )}
 
       <div className="flex-1 flex flex-col relative min-w-0">
-        
         {/* --- HEADER --- */}
         <header className="sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5">
           <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="md:hidden p-2 -ml-2 text-gray-400 hover:text-gray-100 rounded-lg hover:bg-[#2F2F2F] transition"
               >
@@ -544,13 +610,14 @@ export default function Home() {
                   ODM
                 </h1>
                 <p className="text-xs text-gray-400 font-medium hidden sm:block">
-                  {engineRef.current ? "AI Active - Secure & Local" : "AI Offline"}
+                  {engineRef.current
+                    ? "AI Active - Secure & Local"
+                    : "AI Offline"}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 relative">
-              
               {messages.length > 0 && (
                 <button
                   onClick={() => setShowShareModal(true)}
@@ -577,7 +644,9 @@ export default function Home() {
                   {isModelDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-64 sm:w-72 bg-[#2F2F2F] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
                       <div className="p-3 border-b border-white/5 bg-[#212121]/50">
-                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Available Models</p>
+                        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                          Available Models
+                        </p>
                       </div>
                       <div className="max-h-80 overflow-y-auto">
                         {AVAILABLE_MODELS.map((model) => (
@@ -587,10 +656,12 @@ export default function Home() {
                               setActiveModelId(model.id);
                               setIsModelDropdownOpen(false);
                             }}
-                            className={`w-full text-left p-3 hover:bg-[#3F3F3F] border-b border-white/5 last:border-0 transition-colors ${activeModelId === model.id ? 'bg-[#3F3F3F]' : ''}`}
+                            className={`w-full text-left p-3 hover:bg-[#3F3F3F] border-b border-white/5 last:border-0 transition-colors ${activeModelId === model.id ? "bg-[#3F3F3F]" : ""}`}
                           >
                             <div className="flex justify-between items-center mb-1">
-                              <span className={`font-semibold text-sm ${activeModelId === model.id ? 'text-white' : 'text-gray-300'}`}>
+                              <span
+                                className={`font-semibold text-sm ${activeModelId === model.id ? "text-white" : "text-gray-300"}`}
+                              >
                                 {model.name}
                               </span>
                             </div>
@@ -610,18 +681,25 @@ export default function Home() {
                   onClick={initializeEngine}
                   className="text-sm bg-gray-100 hover:bg-white text-[#212121] px-4 sm:px-5 py-2 rounded-lg shadow-sm transition flex items-center gap-2 font-semibold"
                 >
-                  <DownloadCloud size={16} /> <span className="hidden sm:inline">Load Engine</span>
+                  <DownloadCloud size={16} />{" "}
+                  <span className="hidden sm:inline">Load Engine</span>
                 </button>
               )}
 
               {/* 🚀 MODE VISUALIZER */}
               <div className="flex items-center gap-2 px-2.5 py-1.5 bg-[#1A1A1A] border border-white/5 rounded-lg ml-1 sm:ml-2 min-w-[70px] sm:min-w-[85px] transition-all duration-500 shadow-inner">
                 <div className="relative flex h-2 w-2 shrink-0 mt-0.5">
-                  <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isOnline ? 'bg-emerald-400 animate-ping' : 'bg-amber-400 animate-pulse'}`}></span>
-                  <span className={`relative inline-flex rounded-full h-2 w-2 ${isOnline ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                  <span
+                    className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isOnline ? "bg-emerald-400 animate-ping" : "bg-amber-400 animate-pulse"}`}
+                  ></span>
+                  <span
+                    className={`relative inline-flex rounded-full h-2 w-2 ${isOnline ? "bg-emerald-500" : "bg-amber-500"}`}
+                  ></span>
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  <span
+                    className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? "text-emerald-400" : "text-amber-400"}`}
+                  >
                     {isOnline ? "Online" : "Offline"}
                   </span>
                   <span className="text-[7px] sm:text-[8px] text-gray-500 leading-none transition-all duration-300 truncate hidden sm:block">
@@ -629,7 +707,6 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-
             </div>
           </div>
         </header>
@@ -670,8 +747,12 @@ export default function Home() {
                   <DownloadCloud size={28} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-white">Initialize local AI?</h2>
-                  <p className="text-sm text-gray-400">Models will be downloaded to your device.</p>
+                  <h2 className="text-xl font-bold text-white">
+                    Initialize local AI?
+                  </h2>
+                  <p className="text-sm text-gray-400">
+                    Models will be downloaded to your device.
+                  </p>
                 </div>
               </div>
 
@@ -713,8 +794,12 @@ export default function Home() {
         <main className="flex-1 overflow-y-auto px-4 sm:px-6 pt-12 pb-32 max-w-3xl w-full mx-auto scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           {messages.length === 0 && !streamingContent ? (
             <div className="h-full flex flex-col items-center justify-center text-gray-500 space-y-4 mt-12">
-              <Sparkles size={48} strokeWidth={1} />
-              <h2 className="text-xl font-semibold text-gray-300">How can I help you today?</h2>
+              <div className="text-5xl font-bold tracking-tighter text-gray-200 mb-2 select-none cursor-default">
+                ODM<span className="text-gray-600">.</span>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-300">
+                How can I help you today?
+              </h2>
               <p className="text-sm text-center font-medium">
                 {engineRef.current
                   ? "AI loaded. Upload an image or send a prompt."
@@ -723,16 +808,15 @@ export default function Home() {
             </div>
           ) : (
             <div className="space-y-6">
-              
               {messages.map((msg: any, idx: number) => (
-                <MessageItem 
-                  key={idx} 
-                  role={msg.role} 
-                  content={msg.content} 
-                  onEdit={handleEditPrompt} 
+                <MessageItem
+                  key={idx}
+                  role={msg.role}
+                  content={msg.content}
+                  onEdit={handleEditPrompt}
                 />
               ))}
-              
+
               {(streamingContent || visionStatus) && (
                 <div className="flex justify-start mb-6 w-full">
                   <div className="px-5 py-3.5 max-w-[90%] md:max-w-[80%] bg-transparent text-gray-100 whitespace-pre-wrap">
@@ -780,7 +864,7 @@ export default function Home() {
                 </button>
               </div>
             )}
-            
+
             <div
               className={`flex items-end gap-2 p-2 bg-[#2F2F2F] border rounded-3xl shadow-lg transition-colors ${engineRef.current ? "border-white/10 focus-within:border-gray-500" : "border-white/5 opacity-60"}`}
             >
@@ -799,7 +883,7 @@ export default function Home() {
               >
                 <ImageIcon size={22} />
               </button>
-              
+
               <textarea
                 ref={textareaRef}
                 value={input}
@@ -819,7 +903,7 @@ export default function Home() {
                 rows={1}
                 className="flex-1 max-h-32 min-h-[44px] bg-transparent text-gray-100 placeholder-gray-500 px-2 py-3 focus:outline-none resize-none disabled:opacity-50"
               />
-              
+
               <button
                 onClick={handleSend}
                 disabled={
@@ -833,7 +917,10 @@ export default function Home() {
               </button>
             </div>
             <div className="text-center mt-3">
-              <span className="text-[10px] text-gray-500">ODM runs entirely on your device. Responses may occasionally be inaccurate.</span>
+              <span className="text-[10px] text-gray-500">
+                ODM runs entirely on your device. Responses may occasionally be
+                inaccurate.
+              </span>
             </div>
           </div>
         </footer>
