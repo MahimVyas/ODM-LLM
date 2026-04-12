@@ -18,7 +18,7 @@ import {
   MessageCircle,
   Link2,
   FileText,
-  MonitorSmartphone, // 👈 Added the Mobile Warning Icon
+  MonitorSmartphone,
 } from "lucide-react";
 import { CreateWebWorkerMLCEngine } from "@mlc-ai/web-llm";
 import ReactMarkdown from "react-markdown";
@@ -285,7 +285,7 @@ export default function Home() {
 
   if (status === "loading" || status === "unauthenticated") {
     return (
-      <div className="flex h-[100dvh] bg-[#212121] items-center justify-center">
+      <div className="flex h-screen w-full bg-[#212121] items-center justify-center">
         <Loader2 className="animate-spin text-gray-400" size={32} />
       </div>
     );
@@ -528,8 +528,8 @@ export default function Home() {
 
   return (
     <>
-      {/* 🚀 MOBILE UNSUPPORTED SCREEN (Visible only on phones) */}
-      <div className="flex md:hidden h-[100dvh] bg-[#212121] text-gray-100 flex-col items-center justify-center p-8 text-center select-none">
+      {/* 🚀 FIX 1: Explicitly added `w-full` and standard `h-screen` to the mobile wrapper */}
+      <div className="flex md:hidden h-screen w-full bg-[#212121] text-gray-100 flex-col items-center justify-center p-8 text-center select-none">
         <div className="text-4xl font-bold tracking-tighter text-gray-200 mb-8 cursor-default">
           ODM<span className="text-gray-600">.</span>
         </div>
@@ -556,8 +556,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 🚀 MAIN APP (Visible only on tablets/laptops/desktops) */}
-      <div className="hidden md:flex h-[100dvh] bg-[#212121] text-gray-100 font-sans selection:bg-gray-700 overflow-hidden relative">
+      {/* 🚀 FIX 2: Explicitly added `w-full` and standard `h-screen` to the desktop wrapper */}
+      <div className="hidden md:flex h-screen w-full bg-[#212121] text-gray-100 font-sans selection:bg-gray-700 overflow-hidden relative">
         {isMobileMenuOpen && (
           <div
             className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
@@ -644,7 +644,8 @@ export default function Home() {
           </div>
         )}
 
-        <div className="flex-1 flex flex-col relative min-w-0 h-[100dvh]">
+        {/* 🚀 FIX 3: Changed inner flex column to `h-full` and `w-full` so it stretches properly */}
+        <div className="flex-1 flex flex-col relative min-w-0 h-full w-full">
           {/* --- HEADER --- */}
           <header className="shrink-0 sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5 relative">
             <div className="max-w-4xl mx-auto px-2 sm:px-4 py-3 flex items-center justify-between">
@@ -668,7 +669,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 🚀 CENTERED ACTIVE MODEL BADGE */}
+              {/* CENTERED ACTIVE MODEL BADGE */}
               {engineRef.current && (
                 <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none animate-in fade-in zoom-in duration-300">
                   <span className="text-[8px] sm:text-[9px] text-emerald-500/80 font-bold uppercase tracking-widest mb-1">
@@ -999,8 +1000,8 @@ export default function Home() {
               </div>
               <div className="text-center mt-3">
                 <span className="text-[10px] text-gray-500">
-                  ODM runs entirely on your device. Responses may occasionally
-                  be inaccurate.
+                  ODM runs entirely on your device. Responses may occasionally be
+                  inaccurate.
                 </span>
               </div>
             </div>
