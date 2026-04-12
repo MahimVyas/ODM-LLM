@@ -11,10 +11,14 @@ import {
   ChevronDown,
   Cpu,
   Menu,
-  Copy, // 👈 New Icon
-  Check, // 👈 New Icon
-  Pencil, // 👈 New Icon
-  Share // 👈 New Icon
+  Copy, 
+  Check, 
+  Pencil, 
+  Share,
+  X,
+  MessageCircle,
+  Link2,
+  FileText
 } from "lucide-react";
 import { CreateWebWorkerMLCEngine } from "@mlc-ai/web-llm";
 import ReactMarkdown from "react-markdown";
@@ -57,8 +61,6 @@ const AVAILABLE_MODELS = [
   }
 ];
 
-// 🚀 RE-STYLED: Now includes the Hover Toolbar for Copy/Edit
-// 🚀 RE-STYLED: Toolbar is now always visible (dimmed) instead of hidden on hover
 const MessageItem = memo(({ role, content, onEdit }: { role: string; content: string; onEdit: (text: string) => void }) => {
   const [isCopied, setIsCopied] = useState(false);
 
@@ -69,7 +71,7 @@ const MessageItem = memo(({ role, content, onEdit }: { role: string; content: st
   };
 
   return (
-    <div className={`flex w-full ${role === "user" ? "justify-end" : "justify-start"} mb-6`}>
+    <div className={`group flex w-full ${role === "user" ? "justify-end" : "justify-start"} mb-6`}>
       <div className={`flex flex-col gap-1.5 w-full ${role === "user" ? "items-end" : "items-start"}`}>
         
         <div
@@ -114,11 +116,10 @@ const MessageItem = memo(({ role, content, onEdit }: { role: string; content: st
           )}
         </div>
 
-        {/* 🚀 TOOLBAR: Always visible now, just colored gray! */}
-        <div className="flex items-center gap-2 px-4 mt-1">
+        <div className={`flex items-center gap-1 ${role === "user" ? "pr-4" : "pl-1"} opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200`}>
           <button 
             onClick={handleCopy} 
-            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-200 transition-colors" 
+            className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors" 
             title="Copy Text"
           >
             {isCopied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
@@ -127,7 +128,7 @@ const MessageItem = memo(({ role, content, onEdit }: { role: string; content: st
           {role === "user" && (
             <button 
               onClick={() => onEdit(content)} 
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-200 transition-colors ml-2" 
+              className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors" 
               title="Edit Prompt"
             >
               <Pencil size={14} />
@@ -146,7 +147,11 @@ export default function Home() {
   const router = useRouter();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isShared, setIsShared] = useState(false); // 👈 State for Share button
+  
+  // 🚀 New Share Modal States
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
+  const [shareTextCopied, setShareTextCopied] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -176,7 +181,7 @@ export default function Home() {
   const engineWorkerRef = useRef<Worker | null>(null);
   const visionWorkerRef = useRef<Worker | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null); // 👈 Ref to focus input on edit
+  const textareaRef = useRef<HTMLTextAreaElement>(null); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [isEngineLoading, setIsEngineLoading] = useState(false);
@@ -209,7 +214,6 @@ export default function Home() {
     };
   }, []);
 
-  // Auto-scroll logic
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages, streamingContent, visionStatus]);
@@ -222,26 +226,52 @@ export default function Home() {
     );
   }
 
-  // 🚀 LOGIC: Share Chat feature
-  const handleShareChat = () => {
-    if (messages.length === 0) return;
-    
-    // Format the entire chat history cleanly
-    const chatExportText = messages.map((m: any) => 
-      `${m.role === 'user' ? 'You' : 'ODM'}:\n${m.content}`
-    ).join('\n\n---\n\n');
-    
-    const finalExport = `ODM Chat Export\n\n${chatExportText}`;
-    
-    navigator.clipboard.writeText(finalExport);
-    setIsShared(true);
-    setTimeout(() => setIsShared(false), 2000);
+  // 🚀 SHARE MODAL LOGIC
+  const getFormattedChat = () => {
+    return messages.map((m: any) => `${m.role === 'user' ? 'You' : 'ODM'}:\n${m.content}`).join('\n\n---\n\n');
   };
 
-  // 🚀 LOGIC: Edit Prompt feature
+  const handleWhatsAppShare = () => {
+    const text = getFormattedChat();
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Check out this conversation with ODM AI:\n\n" + text)}`, '_blank');
+    setShowShareModal(false);
+  };
+
+  const handleCopyText = () => {
+    navigator.clipboard.writeText(`ODM Chat Export\n\n${getFormattedChat()}`);
+    setShareTextCopied(true);
+    setTimeout(() => {
+      setShareTextCopied(false);
+      setShowShareModal(false);
+    }, 1500);
+  };
+
+  const handleCopyLink = () => {
+    try {
+      // For local-only apps, we encode the chat history into a base64 URL parameter
+      // If the user pastes this link, a future `/share` route could decode and display it!
+      const encodedChat = btoa(encodeURIComponent(JSON.stringify(messages)));
+      const shareUrl = `${window.location.origin}/share?data=${encodedChat}`;
+      
+      // Browsers limit URLs to ~2000 chars. If it's too big, fallback to text.
+      if (shareUrl.length > 2000) {
+        alert("This chat is too long to generate a local link. Please use 'Copy Text' instead.");
+        return;
+      }
+      navigator.clipboard.writeText(shareUrl);
+      setShareLinkCopied(true);
+      setTimeout(() => {
+        setShareLinkCopied(false);
+        setShowShareModal(false);
+      }, 1500);
+    } catch (e) {
+      alert("Failed to generate link.");
+    }
+  };
+
   const handleEditPrompt = (text: string) => {
     setInput(text);
-    textareaRef.current?.focus(); // Instantly focus the text box so they can edit
+    textareaRef.current?.focus(); 
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -420,6 +450,62 @@ export default function Home() {
       <SettingsModal />
       <OnboardingGuide />
 
+      {/* 🚀 SHARE MODAL UI */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-sm bg-[#212121] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-white/5 bg-[#1A1A1A]">
+              <h2 className="text-lg font-semibold text-white tracking-tight">Share Chat</h2>
+              <button 
+                onClick={() => setShowShareModal(false)}
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-full transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-4 space-y-2 bg-[#212121]">
+              
+              <button 
+                onClick={handleCopyLink}
+                className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
+              >
+                <div className="flex items-center gap-3 text-gray-200">
+                  <div className="p-2 bg-[#212121] rounded-lg border border-white/5 group-hover:border-white/10">
+                    {shareLinkCopied ? <Check size={18} className="text-emerald-400" /> : <Link2 size={18} />}
+                  </div>
+                  <span className="font-medium text-sm">Copy Link</span>
+                </div>
+              </button>
+
+              <button 
+                onClick={handleCopyText}
+                className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
+              >
+                <div className="flex items-center gap-3 text-gray-200">
+                  <div className="p-2 bg-[#212121] rounded-lg border border-white/5 group-hover:border-white/10">
+                    {shareTextCopied ? <Check size={18} className="text-emerald-400" /> : <FileText size={18} />}
+                  </div>
+                  <span className="font-medium text-sm">Copy Text</span>
+                </div>
+              </button>
+
+              <button 
+                onClick={handleWhatsAppShare}
+                className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
+              >
+                <div className="flex items-center gap-3 text-gray-200">
+                  <div className="p-2 bg-green-500/10 text-green-400 rounded-lg border border-green-500/20 group-hover:border-green-500/30">
+                    <MessageCircle size={18} />
+                  </div>
+                  <span className="font-medium text-sm">WhatsApp</span>
+                </div>
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 flex flex-col relative min-w-0">
         
         {/* --- HEADER --- */}
@@ -449,14 +535,13 @@ export default function Home() {
 
             <div className="flex items-center gap-2 sm:gap-3 relative">
               
-              {/* 🚀 SHARE BUTTON */}
               {messages.length > 0 && (
                 <button
-                  onClick={handleShareChat}
+                  onClick={() => setShowShareModal(true)}
                   className="flex items-center gap-2 px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm"
                 >
-                  {isShared ? <Check size={16} className="text-emerald-400" /> : <Share size={16} className="text-gray-400" />}
-                  <span className="hidden sm:inline">{isShared ? "Copied!" : "Share"}</span>
+                  <Share size={16} className="text-gray-400" />
+                  <span className="hidden sm:inline">Share</span>
                 </button>
               )}
 
@@ -606,7 +691,6 @@ export default function Home() {
           ) : (
             <div className="space-y-6">
               
-              {/* 🚀 Pass the handleEditPrompt to the MessageItem */}
               {messages.map((msg: any, idx: number) => (
                 <MessageItem 
                   key={idx} 
