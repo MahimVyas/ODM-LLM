@@ -28,7 +28,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import Sidebar from "@/components/Sidebar";
 import SettingsModal from "@/components/SettingsModal";
 import OnboardingGuide from "@/components/OnboardingGuide";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 const AVAILABLE_MODELS = [
@@ -37,8 +37,7 @@ const AVAILABLE_MODELS = [
     name: "Llama 3.2 (1B)",
     params: "1.2B",
     size: "~800 MB",
-    description:
-      "Best for everyday tasks, basic chat, and extreme speed.",
+    description: "Best for everyday tasks, basic chat, and extreme speed.",
   },
   {
     id: "Phi-3-mini-4k-instruct-q4f16_1-MLC",
@@ -529,8 +528,7 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-[#212121] text-gray-100 font-sans selection:bg-gray-700 overflow-hidden relative">
-      
-      {/* 🚀 MOBILE UNSUPPORTED OVERLAY (Visible only on phones, covers everything safely) */}
+      {/* 🚀 MOBILE UNSUPPORTED OVERLAY (Visible only on phones) */}
       <div className="absolute inset-0 z-[9999] flex md:hidden bg-[#212121] flex-col items-center justify-center p-8 text-center select-none">
         <div className="text-4xl font-bold tracking-tighter text-gray-200 mb-8 cursor-default">
           ODM<span className="text-gray-600">.</span>
@@ -546,13 +544,13 @@ export default function Home() {
           AI models entirely in the browser. Mobile devices lack the required
           memory and WebGPU support.
         </p>
-        
-        {/* 🚀 BACK TO HOME BUTTON */}
+
+        {/* 🚀 FIX: Logs the user out so they don't get auto-redirected back to /chat */}
         <button
-          onClick={() => router.push("/")}
+          onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-white text-[#212121] rounded-full font-semibold transition-all shadow-sm"
         >
-          <ArrowLeft size={18} /> Return to Home
+          <ArrowLeft size={18} /> Sign out & Return
         </button>
 
         <div className="mt-10 px-5 py-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-2.5 shadow-inner">
@@ -704,9 +702,7 @@ export default function Home() {
               {!engineRef.current && !isEngineLoading && (
                 <div className="relative">
                   <button
-                    onClick={() =>
-                      setIsModelDropdownOpen(!isModelDropdownOpen)
-                    }
+                    onClick={() => setIsModelDropdownOpen(!isModelDropdownOpen)}
                     className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-[#2F2F2F] border border-white/10 rounded-lg text-sm font-medium hover:bg-[#3F3F3F] transition text-gray-100 shadow-sm"
                   >
                     <Cpu size={16} className="text-gray-400" />
