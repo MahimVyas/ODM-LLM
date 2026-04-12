@@ -148,7 +148,10 @@ export default function Home() {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // 🚀 New Share Modal States
+  // 🚀 Network Mode State
+  const [isOnline, setIsOnline] = useState(true);
+
+  // Share Modal States
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [shareTextCopied, setShareTextCopied] = useState(false);
@@ -158,6 +161,23 @@ export default function Home() {
       router.push("/");
     }
   }, [status, router]);
+
+  // 🚀 Network Mode Listeners
+  useEffect(() => {
+    // Set initial state safely on client
+    setIsOnline(navigator.onLine);
+
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   
@@ -226,7 +246,6 @@ export default function Home() {
     );
   }
 
-  // 🚀 SHARE MODAL LOGIC
   const getFormattedChat = () => {
     return messages.map((m: any) => `${m.role === 'user' ? 'You' : 'ODM'}:\n${m.content}`).join('\n\n---\n\n');
   };
@@ -248,12 +267,9 @@ export default function Home() {
 
   const handleCopyLink = () => {
     try {
-      // For local-only apps, we encode the chat history into a base64 URL parameter
-      // If the user pastes this link, a future `/share` route could decode and display it!
       const encodedChat = btoa(encodeURIComponent(JSON.stringify(messages)));
       const shareUrl = `${window.location.origin}/share?data=${encodedChat}`;
       
-      // Browsers limit URLs to ~2000 chars. If it's too big, fallback to text.
       if (shareUrl.length > 2000) {
         alert("This chat is too long to generate a local link. Please use 'Copy Text' instead.");
         return;
@@ -450,7 +466,7 @@ export default function Home() {
       <SettingsModal />
       <OnboardingGuide />
 
-      {/* 🚀 SHARE MODAL UI */}
+      {/* SHARE MODAL UI */}
       {showShareModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="w-full max-w-sm bg-[#212121] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
@@ -538,10 +554,10 @@ export default function Home() {
               {messages.length > 0 && (
                 <button
                   onClick={() => setShowShareModal(true)}
-                  className="flex items-center gap-2 px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm"
+                  className="hidden sm:flex items-center gap-2 px-3 py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm"
                 >
                   <Share size={16} className="text-gray-400" />
-                  <span className="hidden sm:inline">Share</span>
+                  <span>Share</span>
                 </button>
               )}
 
@@ -597,6 +613,23 @@ export default function Home() {
                   <DownloadCloud size={16} /> <span className="hidden sm:inline">Load Engine</span>
                 </button>
               )}
+
+              {/* 🚀 MODE VISUALIZER */}
+              <div className="flex items-center gap-2 px-2.5 py-1.5 bg-[#1A1A1A] border border-white/5 rounded-lg ml-1 sm:ml-2 min-w-[70px] sm:min-w-[85px] transition-all duration-500 shadow-inner">
+                <div className="relative flex h-2 w-2 shrink-0 mt-0.5">
+                  <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isOnline ? 'bg-emerald-400 animate-ping' : 'bg-amber-400 animate-pulse'}`}></span>
+                  <span className={`relative inline-flex rounded-full h-2 w-2 ${isOnline ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                </div>
+                <div className="flex flex-col justify-center">
+                  <span className={`text-[9px] sm:text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? 'text-emerald-400' : 'text-amber-400'}`}>
+                    {isOnline ? "Online" : "Offline"}
+                  </span>
+                  <span className="text-[7px] sm:text-[8px] text-gray-500 leading-none transition-all duration-300 truncate hidden sm:block">
+                    {isOnline ? "Sync Ready" : "Local Mode"}
+                  </span>
+                </div>
+              </div>
+
             </div>
           </div>
         </header>
