@@ -1,59 +1,62 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { useUIStore } from "@/lib/store";
 import { 
   X, 
   Database, 
-  Cpu, 
-  CheckCircle2, 
-  Download,
-  Info
+  Info,
+  Trash2,
+  HardDrive
 } from "lucide-react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { db } from "@/lib/db";
+import { useState } from "react";
 
 export default function SettingsModal() {
   const isSettingsOpen = useUIStore((state: any) => state.isSettingsOpen);
   const toggleSettings = useUIStore((state: any) => state.toggleSettings);
-  const [installedModels, setInstalledModels] = useState({
-    llama3: false,
-    vision: false
-  });
-  const [isScanning, setIsScanning] = useState(false);
-
-  async function checkInstalledModels() {
-    setIsScanning(true);
-    try {
-      if (typeof window !== 'undefined' && 'caches' in window) {
-        const cacheKeys = await caches.keys();
-        setInstalledModels({
-          llama3: cacheKeys.some(key => key.includes('webllm')),
-          vision: cacheKeys.some(key => key.includes('transformers-cache'))
-        });
-      }
-    } catch (e) {
-      console.error("Failed to scan cache:", e);
-    } finally {
-      setIsScanning(false);
-    }
-  }
-
-  useEffect(() => {
-    if (isSettingsOpen) {
-      checkInstalledModels();
-    }
-  }, [isSettingsOpen]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!isSettingsOpen) return null;
 
+  const handleClearCache = async () => {
+    if (!confirm("Are you sure you want to delete all downloaded AI models? You will need to re-download them later to use the engine.")) return;
+    
+    setIsDeleting(true);
+    try {
+      if ('caches' in window) {
+        const cacheKeys = await caches.keys();
+        for (const key of cacheKeys) {
+          if (key.includes('webllm') || key.includes('transformers-cache')) {
+            await caches.delete(key);
+          }
+        }
+      }
+      alert("AI Models deleted successfully from your browser cache.");
+    } catch (e) {
+      console.error("Failed to clear cache:", e);
+      alert("Failed to delete models.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (!confirm("Are you sure you want to permanently delete all chat history? This action cannot be undone.")) return;
+    
+    try {
+      await db.messages.clear();
+      await db.chats.clear();
+      alert("Chat history cleared completely.");
+      window.location.reload(); // Refresh to clear the active UI state
+    } catch (e) {
+      console.error("Failed to clear history:", e);
+      alert("Failed to delete chat history.");
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#212121] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+      <div className="w-full max-w-xl bg-[#212121] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
         
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#1A1A1A]">
@@ -72,67 +75,55 @@ export default function SettingsModal() {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-8 bg-[#212121]">
-          {/* Model Manager */}
+        <div className="p-6 space-y-6 bg-[#212121]">
+          
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
-                <Cpu size={14} /> Model Manager
-              </h3>
-              <button 
-                onClick={checkInstalledModels}
-                className="text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium"
-              >
-                Refresh
-              </button>
-            </div>
+            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2 mb-4">
+              <HardDrive size={14} /> Storage & Data Management
+            </h3>
 
             <div className="space-y-3">
-              {/* Llama 3 Card */}
-              <div className="flex items-center justify-between p-4 bg-[#2F2F2F] border border-white/5 rounded-2xl">
-                <div className="flex flex-col">
-                  <span className="font-medium text-gray-200">Llama 3.2 (1B)</span>
-                  <span className="text-xs text-gray-400">Language Model • ~1.2GB</span>
+              {/* Delete AI Models */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-[#2F2F2F] border border-white/5 rounded-2xl gap-4">
+                <div>
+                  <span className="font-medium text-gray-200 block mb-1">Delete AI Models</span>
+                  <span className="text-xs text-gray-400 leading-relaxed max-w-sm block">
+                    Clear downloaded neural network weights from your browser cache to free up system storage.
+                  </span>
                 </div>
-                {installedModels.llama3 ? (
-                  <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium">
-                    <CheckCircle2 size={16} />
-                    Installed
-                  </div>
-                ) : (
-                  <div className="text-gray-500 text-sm flex items-center gap-2">
-                    <Download size={16} />
-                    Not Cached
-                  </div>
-                )}
+                <button 
+                  onClick={handleClearCache}
+                  disabled={isDeleting}
+                  className="shrink-0 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 rounded-xl text-sm font-semibold transition flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Trash2 size={16} /> 
+                  {isDeleting ? "Deleting..." : "Clear Cache"}
+                </button>
               </div>
 
-              {/* Vision Model Card */}
-              <div className="flex items-center justify-between p-4 bg-[#2F2F2F] border border-white/5 rounded-2xl">
-                <div className="flex flex-col">
-                  <span className="font-medium text-gray-200">Vision Model</span>
-                  <span className="text-xs text-gray-400">Image Analysis • ~60MB</span>
+              {/* Clear Chat History */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-[#2F2F2F] border border-white/5 rounded-2xl gap-4">
+                <div>
+                  <span className="font-medium text-gray-200 block mb-1">Clear Chat History</span>
+                  <span className="text-xs text-gray-400 leading-relaxed max-w-sm block">
+                    Permanently wipe all conversation threads and images from your local IndexedDB storage.
+                  </span>
                 </div>
-                {installedModels.vision ? (
-                  <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium">
-                    <CheckCircle2 size={16} />
-                    Installed
-                  </div>
-                ) : (
-                  <div className="text-gray-500 text-sm flex items-center gap-2">
-                    <Download size={16} />
-                    Not Cached
-                  </div>
-                )}
+                <button 
+                  onClick={handleClearHistory}
+                  className="shrink-0 px-4 py-2 bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 rounded-xl text-sm font-semibold transition flex items-center gap-2"
+                >
+                  <Trash2 size={16} /> Delete All
+                </button>
               </div>
             </div>
           </div>
 
           {/* Privacy Note */}
-          <div className="p-4 bg-[#2F2F2F] border border-white/5 rounded-2xl flex gap-3">
-            <Info className="text-gray-400 shrink-0" size={18} />
-            <p className="text-xs text-gray-400 leading-relaxed">
-              All models and chat history are stored locally in your browser's IndexedDB and CacheStorage. No data ever leaves your device.
+          <div className="p-4 bg-[#1A1A1A] border border-white/5 rounded-xl flex gap-3 shadow-inner">
+            <Info className="text-emerald-500/70 shrink-0 mt-0.5" size={16} />
+            <p className="text-[11px] text-gray-400 leading-relaxed">
+              Your privacy is absolute. All models and chat histories are stored strictly within this device's browser memory environments. No analytics or prompt data ever leaves your computer.
             </p>
           </div>
         </div>
