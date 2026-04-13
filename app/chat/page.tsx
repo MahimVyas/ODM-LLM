@@ -55,7 +55,8 @@ const AVAILABLE_MODELS = [
     params: "1.5B",
     size: "~1.0 GB",
     provider: "Alibaba",
-    description: "Highly capable for coding, structured data, and multilingual tasks.",
+    description:
+      "Highly capable for coding, structured data, and multilingual tasks.",
   },
   {
     id: "Llama-3-8B-Instruct-q4f32_1-MLC",
@@ -63,7 +64,8 @@ const AVAILABLE_MODELS = [
     params: "8.0B",
     size: "~5.0 GB",
     provider: "Meta",
-    description: "Heavyweight model. Best for complex reasoning and deep knowledge.",
+    description:
+      "Heavyweight model. Best for complex reasoning and deep knowledge.",
   },
 ];
 
@@ -86,8 +88,12 @@ const MessageItem = memo(
     };
 
     return (
-      <div className={`group flex w-full ${role === "user" ? "justify-end" : "justify-start"} mb-6`}>
-        <div className={`flex flex-col gap-1.5 w-full ${role === "user" ? "items-end" : "items-start"}`}>
+      <div
+        className={`group flex w-full ${role === "user" ? "justify-end" : "justify-start"} mb-6`}
+      >
+        <div
+          className={`flex flex-col gap-1.5 w-full ${role === "user" ? "items-end" : "items-start"}`}
+        >
           <div
             className={`px-5 py-3.5 max-w-[90%] md:max-w-[80%] overflow-x-auto ${
               role === "user"
@@ -103,21 +109,49 @@ const MessageItem = memo(
                   code({ node, inline, className, children, ...props }: any) {
                     return !inline ? (
                       <pre className="bg-[#0D0D0D] p-4 rounded-xl overflow-x-auto my-3 border border-white/5 font-mono text-sm leading-relaxed shadow-inner">
-                        <code className="text-gray-300" {...props}>{children}</code>
+                        <code className="text-gray-300" {...props}>
+                          {children}
+                        </code>
                       </pre>
                     ) : (
-                      <code className="bg-[#2F2F2F] px-1.5 py-0.5 rounded text-gray-200 font-mono text-sm" {...props}>
+                      <code
+                        className="bg-[#2F2F2F] px-1.5 py-0.5 rounded text-gray-200 font-mono text-sm"
+                        {...props}
+                      >
                         {children}
                       </code>
                     );
                   },
-                  p: ({ children }) => <div className="mb-3 last:mb-0 leading-relaxed">{children}</div>,
-                  ul: ({ children }) => <ul className="list-disc ml-6 mb-3 space-y-1">{children}</ul>,
-                  ol: ({ children }) => <ol className="list-decimal ml-6 mb-3 space-y-1">{children}</ol>,
-                  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
-                  strong: ({ children }) => <strong className="font-semibold text-white">{children}</strong>,
+                  p: ({ children }) => (
+                    <div className="mb-3 last:mb-0 leading-relaxed">
+                      {children}
+                    </div>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="list-disc ml-6 mb-3 space-y-1">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="list-decimal ml-6 mb-3 space-y-1">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="leading-relaxed">{children}</li>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-semibold text-white">
+                      {children}
+                    </strong>
+                  ),
                   a: ({ children, href }) => (
-                    <a href={href} className="text-blue-400 hover:underline transition-colors" target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={href}
+                      className="text-blue-400 hover:underline transition-colors"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {children}
                     </a>
                   ),
@@ -128,12 +162,26 @@ const MessageItem = memo(
             )}
           </div>
 
-          <div className={`flex items-center gap-1 ${role === "user" ? "pr-4" : "pl-1"} opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200`}>
-            <button onClick={handleCopy} className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors" title="Copy Text">
-              {isCopied ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
+          <div
+            className={`flex items-center gap-1 ${role === "user" ? "pr-4" : "pl-1"} opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200`}
+          >
+            <button
+              onClick={handleCopy}
+              className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors"
+              title="Copy Text"
+            >
+              {isCopied ? (
+                <Check size={14} className="text-emerald-400" />
+              ) : (
+                <Copy size={14} />
+              )}
             </button>
             {role === "user" && (
-              <button onClick={() => onEdit(content)} className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors" title="Edit Prompt">
+              <button
+                onClick={() => onEdit(content)}
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-md transition-colors"
+                title="Edit Prompt"
+              >
                 <Pencil size={14} />
               </button>
             )}
@@ -156,7 +204,7 @@ export default function Home() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [shareTextCopied, setShareTextCopied] = useState(false);
-  
+
   // 🚀 NEW: Auto-init and Model Selection States
   const [showModelSelector, setShowModelSelector] = useState(false);
   const [installedModels, setInstalledModels] = useState<string[]>([]);
@@ -184,26 +232,32 @@ export default function Home() {
   useEffect(() => {
     const scanCacheAndInit = async () => {
       try {
-        if (!('caches' in window)) return;
+        if (!("caches" in window)) return;
         const cacheNames = await caches.keys();
-        const webllmCaches = cacheNames.filter(name => name.includes('webllm'));
-        
+        const webllmCaches = cacheNames.filter((name) =>
+          name.includes("webllm"),
+        );
+
         let detected = new Set<string>();
         for (const cName of webllmCaches) {
           const cache = await caches.open(cName);
           const reqs = await cache.keys();
           for (const req of reqs) {
-            AVAILABLE_MODELS.forEach(m => {
+            AVAILABLE_MODELS.forEach((m) => {
               if (req.url.includes(m.id)) detected.add(m.id);
             });
           }
         }
-        
+
         const installedArr = Array.from(detected);
         setInstalledModels(installedArr);
 
         // Auto-Initialize if exactly one model is installed and no engine is loading
-        if (installedArr.length === 1 && !engineRef.current && !isEngineLoading) {
+        if (
+          installedArr.length === 1 &&
+          !engineRef.current &&
+          !isEngineLoading
+        ) {
           setActiveModelId(installedArr[0]);
           startEngine(installedArr[0]);
         }
@@ -216,7 +270,9 @@ export default function Home() {
   }, []);
 
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  const [activeModelId, setActiveModelId] = useState<string>(AVAILABLE_MODELS[0].id);
+  const [activeModelId, setActiveModelId] = useState<string>(
+    AVAILABLE_MODELS[0].id,
+  );
   const activeModel = AVAILABLE_MODELS.find((m) => m.id === activeModelId);
 
   const dbMessages = useLiveQuery(
@@ -266,7 +322,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "end",
+    });
   }, [messages, streamingContent, visionStatus]);
 
   if (status === "loading" || status === "unauthenticated") {
@@ -281,34 +340,48 @@ export default function Home() {
     try {
       const nav = navigator as any;
       if (!nav.gpu) {
-        alert("❌ WebGPU is completely disabled or not supported on this browser.");
+        alert(
+          "❌ WebGPU is completely disabled or not supported on this browser.",
+        );
         return;
       }
       const adapter = await nav.gpu.requestAdapter();
       if (!adapter) {
-        alert("❌ WebGPU is turned on, but Apple refused to provide a GPU adapter for this site.");
+        alert(
+          "❌ WebGPU is turned on, but Apple refused to provide a GPU adapter for this site.",
+        );
         return;
       }
       const hasF16 = adapter.features.has("shader-f16");
-      alert(`✅ WebGPU is working!\nGPU: ${adapter.name || "Apple GPU"}\nF16 Support: ${hasF16 ? "Yes" : "No (Models may crash)"}`);
+      alert(
+        `✅ WebGPU is working!\nGPU: ${adapter.name || "Apple GPU"}\nF16 Support: ${hasF16 ? "Yes" : "No (Models may crash)"}`,
+      );
     } catch (e: any) {
       alert(`Diagnostic Error: ${e.message}`);
     }
   };
 
   const getFormattedChat = () => {
-    return messages.map((m: any) => `${m.role === "user" ? "You" : "ODM"}:\n${m.content}`).join("\n\n---\n\n");
+    return messages
+      .map((m: any) => `${m.role === "user" ? "You" : "ODM"}:\n${m.content}`)
+      .join("\n\n---\n\n");
   };
 
   const handleWhatsAppShare = () => {
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent("Check out this conversation with ODM AI:\n\n" + getFormattedChat())}`, "_blank");
+    window.open(
+      `https://api.whatsapp.com/send?text=${encodeURIComponent("Check out this conversation with ODM AI:\n\n" + getFormattedChat())}`,
+      "_blank",
+    );
     setShowShareModal(false);
   };
 
   const handleCopyText = () => {
     navigator.clipboard.writeText(`ODM Chat Export\n\n${getFormattedChat()}`);
     setShareTextCopied(true);
-    setTimeout(() => { setShareTextCopied(false); setShowShareModal(false); }, 1500);
+    setTimeout(() => {
+      setShareTextCopied(false);
+      setShowShareModal(false);
+    }, 1500);
   };
 
   const handleCopyLink = () => {
@@ -316,12 +389,17 @@ export default function Home() {
       const encodedChat = btoa(encodeURIComponent(JSON.stringify(messages)));
       const shareUrl = `${window.location.origin}/share?data=${encodedChat}`;
       if (shareUrl.length > 2000) {
-        alert("This chat is too long to generate a local link. Please use 'Copy Text' instead.");
+        alert(
+          "This chat is too long to generate a local link. Please use 'Copy Text' instead.",
+        );
         return;
       }
       navigator.clipboard.writeText(shareUrl);
       setShareLinkCopied(true);
-      setTimeout(() => { setShareLinkCopied(false); setShowShareModal(false); }, 1500);
+      setTimeout(() => {
+        setShareLinkCopied(false);
+        setShowShareModal(false);
+      }, 1500);
     } catch (e) {
       alert("Failed to generate link.");
     }
@@ -339,7 +417,8 @@ export default function Home() {
       setSelectedImage(URL.createObjectURL(file));
       const reader = new FileReader();
       reader.onloadend = () => {
-        if (fileInputRef.current) fileInputRef.current.dataset.base64 = reader.result as string;
+        if (fileInputRef.current)
+          fileInputRef.current.dataset.base64 = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
@@ -353,22 +432,22 @@ export default function Home() {
 
     try {
       engineWorkerRef.current?.terminate();
-      const worker = new Worker(new URL("../worker.ts", import.meta.url), { type: "module" });
+      const worker = new Worker(new URL("../worker.ts", import.meta.url), {
+        type: "module",
+      });
       engineWorkerRef.current = worker;
 
-      engineRef.current = await CreateWebWorkerMLCEngine(
-        worker,
-        modelId,
-        {
-          initProgressCallback: (info: any) => {
-            setLoadingProgress(Math.round(info.progress * 100));
-            setLoadingText(info.text);
-          },
+      engineRef.current = await CreateWebWorkerMLCEngine(worker, modelId, {
+        initProgressCallback: (info: any) => {
+          setLoadingProgress(Math.round(info.progress * 100));
+          setLoadingText(info.text);
         },
-      );
+      });
     } catch (error: any) {
       console.error("Failed to load engine:", error);
-      alert(`Initialization Failed: ${error.message || "Your device may not support WebGPU."}`);
+      alert(
+        `Initialization Failed: ${error.message || "Your device may not support WebGPU."}`,
+      );
       engineWorkerRef.current?.terminate();
       engineWorkerRef.current = null;
     } finally {
@@ -386,12 +465,21 @@ export default function Home() {
 
     if (!chatId) {
       chatId = crypto.randomUUID();
-      await db.chats.add({ id: chatId, title: input.slice(0, 30) || "New Chat", updatedAt: Date.now() });
+      await db.chats.add({
+        id: chatId,
+        title: input.slice(0, 30) || "New Chat",
+        updatedAt: Date.now(),
+      });
       setCurrentChatId(chatId);
     }
 
     const finalPrompt = input || "What do you see in this image?";
-    await db.messages.add({ chatId, role: "user" as const, content: finalPrompt, hasImage: !!selectedImage });
+    await db.messages.add({
+      chatId,
+      role: "user" as const,
+      content: finalPrompt,
+      hasImage: !!selectedImage,
+    });
     setInput("");
 
     try {
@@ -405,7 +493,10 @@ export default function Home() {
             else if (e.data.status === "error") reject("Vision error");
             else setVisionStatus(e.data.message);
           };
-          worker.postMessage({ type: "analyze", imageData: fileInputRef.current?.dataset.base64 || selectedImage });
+          worker.postMessage({
+            type: "analyze",
+            imageData: fileInputRef.current?.dataset.base64 || selectedImage,
+          });
         });
         setVisionStatus("");
       }
@@ -415,7 +506,10 @@ export default function Home() {
         : finalPrompt;
 
       setSelectedImage(null);
-      const apiMessages = messages.map((msg: any) => ({ role: msg.role, content: msg.content }));
+      const apiMessages = messages.map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+      }));
       apiMessages.push({ role: "user", content: promptWithContext });
 
       const chunks = await engineRef.current.chat.completions.create({
@@ -433,11 +527,21 @@ export default function Home() {
         setStreamingContent(fullReply);
       }
 
-      await db.messages.add({ chatId, role: "assistant", content: fullReply, hasImage: false });
+      await db.messages.add({
+        chatId,
+        role: "assistant",
+        content: fullReply,
+        hasImage: false,
+      });
       await db.chats.update(chatId, { updatedAt: Date.now() });
     } catch (error) {
       console.error("Generation error:", error);
-      await db.messages.add({ chatId, role: "assistant", content: "Error generating response.", hasImage: false });
+      await db.messages.add({
+        chatId,
+        role: "assistant",
+        content: "Error generating response.",
+        hasImage: false,
+      });
     } finally {
       setIsGenerating(false);
       setVisionStatus("");
@@ -447,7 +551,6 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-[#212121] text-gray-100 font-sans selection:bg-gray-700 overflow-hidden relative">
-      
       {/* MOBILE UNSUPPORTED OVERLAY */}
       <div className="absolute inset-0 z-[9999] flex md:hidden bg-[#212121] flex-col items-center justify-center p-8 text-center select-none">
         <div className="text-4xl font-bold tracking-tighter text-gray-200 mb-8 cursor-default">
@@ -456,9 +559,13 @@ export default function Home() {
         <div className="bg-[#2F2F2F] p-5 rounded-3xl border border-white/10 mb-6 shadow-2xl">
           <MonitorSmartphone size={36} className="text-gray-400" />
         </div>
-        <h2 className="text-2xl font-bold tracking-tight text-white mb-3">Desktop Required</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-white mb-3">
+          Desktop Required
+        </h2>
         <p className="text-sm text-gray-400 leading-relaxed max-w-[280px] mb-8">
-          The current iteration of ODM relies on raw hardware power to run local AI models entirely in the browser. Mobile devices lack the required memory and WebGPU support.
+          The current iteration of ODM relies on raw hardware power to run local
+          AI models entirely in the browser. Mobile devices lack the required
+          memory and WebGPU support.
         </p>
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
@@ -469,11 +576,22 @@ export default function Home() {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity" onClick={() => setIsMobileMenuOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
       )}
 
-      <div className={`fixed inset-y-0 left-0 z-50 transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex`}>
-        <Sidebar currentChatId={currentChatId} onSelectChat={(id) => { setCurrentChatId(id); setIsMobileMenuOpen(false); }} />
+      <div
+        className={`fixed inset-y-0 left-0 z-50 transform ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} md:relative md:translate-x-0 transition-transform duration-300 ease-in-out md:flex`}
+      >
+        <Sidebar
+          currentChatId={currentChatId}
+          onSelectChat={(id) => {
+            setCurrentChatId(id);
+            setIsMobileMenuOpen(false);
+          }}
+        />
       </div>
 
       <SettingsModal />
@@ -484,29 +602,51 @@ export default function Home() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="w-full max-w-sm bg-[#212121] border border-white/10 rounded-3xl shadow-2xl overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-white/5 bg-[#1A1A1A]">
-              <h2 className="text-lg font-semibold text-white tracking-tight">Share Chat</h2>
-              <button onClick={() => setShowShareModal(false)} className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-full transition-colors">
+              <h2 className="text-lg font-semibold text-white tracking-tight">
+                Share Chat
+              </h2>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-[#3F3F3F] rounded-full transition-colors"
+              >
                 <X size={18} />
               </button>
             </div>
             <div className="p-4 space-y-2 bg-[#212121]">
-              <button onClick={handleCopyLink} className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group">
+              <button
+                onClick={handleCopyLink}
+                className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
+              >
                 <div className="flex items-center gap-3 text-gray-200">
                   <div className="p-2 bg-[#212121] rounded-lg border border-white/5 group-hover:border-white/10">
-                    {shareLinkCopied ? <Check size={18} className="text-emerald-400" /> : <Link2 size={18} />}
+                    {shareLinkCopied ? (
+                      <Check size={18} className="text-emerald-400" />
+                    ) : (
+                      <Link2 size={18} />
+                    )}
                   </div>
                   <span className="font-medium text-sm">Copy Link</span>
                 </div>
               </button>
-              <button onClick={handleCopyText} className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group">
+              <button
+                onClick={handleCopyText}
+                className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
+              >
                 <div className="flex items-center gap-3 text-gray-200">
                   <div className="p-2 bg-[#212121] rounded-lg border border-white/5 group-hover:border-white/10">
-                    {shareTextCopied ? <Check size={18} className="text-emerald-400" /> : <FileText size={18} />}
+                    {shareTextCopied ? (
+                      <Check size={18} className="text-emerald-400" />
+                    ) : (
+                      <FileText size={18} />
+                    )}
                   </div>
                   <span className="font-medium text-sm">Copy Text</span>
                 </div>
               </button>
-              <button onClick={handleWhatsAppShare} className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group">
+              <button
+                onClick={handleWhatsAppShare}
+                className="flex items-center justify-between w-full p-4 rounded-2xl bg-[#2F2F2F] hover:bg-[#3F3F3F] border border-white/5 transition-colors group"
+              >
                 <div className="flex items-center gap-3 text-gray-200">
                   <div className="p-2 bg-green-500/10 text-green-400 rounded-lg border border-green-500/20 group-hover:border-green-500/30">
                     <MessageCircle size={18} />
@@ -525,41 +665,64 @@ export default function Home() {
           <div className="w-full max-w-2xl bg-[#2F2F2F] border border-white/10 rounded-3xl shadow-2xl p-6 sm:p-8 flex flex-col max-h-[90vh]">
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h2 className="text-xl font-bold text-white mb-1">Select AI Engine</h2>
-                <p className="text-sm text-gray-400">Choose a model to initialize into your browser's memory.</p>
+                <h2 className="text-xl font-bold text-white mb-1">
+                  Select AI Engine
+                </h2>
+                <p className="text-sm text-gray-400">
+                  Choose a model to initialize into your browser's memory.
+                </p>
               </div>
-              <button onClick={() => setShowModelSelector(false)} className="p-2 text-gray-400 hover:text-white bg-[#212121] border border-white/5 rounded-full transition-colors">
+              <button
+                onClick={() => setShowModelSelector(false)}
+                className="p-2 text-gray-400 hover:text-white bg-[#212121] border border-white/5 rounded-full transition-colors"
+              >
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto space-y-3 mb-6 pr-2">
-              {AVAILABLE_MODELS.map(model => (
-                <button 
+              {AVAILABLE_MODELS.map((model) => (
+                <button
                   key={model.id}
                   onClick={() => setActiveModelId(model.id)}
-                  className={`w-full text-left p-4 rounded-2xl border transition-all ${activeModelId === model.id ? 'bg-[#3F3F3F] border-emerald-500/50 shadow-inner' : 'bg-[#212121] border-white/5 hover:border-white/20'}`}
+                  className={`w-full text-left p-4 rounded-2xl border transition-all ${activeModelId === model.id ? "bg-[#3F3F3F] border-emerald-500/50 shadow-inner" : "bg-[#212121] border-white/5 hover:border-white/20"}`}
                 >
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-center gap-2.5 flex-wrap">
-                      <span className="font-bold text-white text-base">{model.name}</span>
-                      <span className="text-[10px] px-2 py-0.5 bg-gray-700 text-gray-300 rounded-full font-medium tracking-wide uppercase">{model.provider}</span>
+                      <span className="font-bold text-white text-base">
+                        {model.name}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 bg-gray-700 text-gray-300 rounded-full font-medium tracking-wide uppercase">
+                        {model.provider}
+                      </span>
                       {installedModels.includes(model.id) && (
                         <span className="text-[10px] px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center gap-1 font-semibold uppercase tracking-wide">
                           <Check size={10} strokeWidth={3} /> Cached
                         </span>
                       )}
                     </div>
-                    <span className="text-xs font-mono font-medium text-gray-400 bg-black/40 px-2 py-1 rounded-lg shrink-0">{model.size}</span>
+                    <span className="text-xs font-mono font-medium text-gray-400 bg-black/40 px-2 py-1 rounded-lg shrink-0">
+                      {model.size}
+                    </span>
                   </div>
-                  <p className="text-sm text-gray-400 leading-relaxed">{model.description}</p>
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    {model.description}
+                  </p>
                 </button>
               ))}
             </div>
 
             <div className="flex gap-3 pt-4 border-t border-white/5">
-              <button onClick={() => setShowModelSelector(false)} className="flex-1 py-3 bg-[#212121] hover:bg-[#1A1A1A] border border-white/5 text-white rounded-xl font-semibold transition-colors">Cancel</button>
-              <button onClick={() => startEngine(activeModelId)} className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-gray-900 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-sm">
+              <button
+                onClick={() => setShowModelSelector(false)}
+                className="flex-1 py-3 bg-[#212121] hover:bg-[#1A1A1A] border border-white/5 text-white rounded-xl font-semibold transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => startEngine(activeModelId)}
+                className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-gray-900 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors shadow-sm"
+              >
                 <DownloadCloud size={18} /> Initialize {activeModel?.name}
               </button>
             </div>
@@ -571,7 +734,10 @@ export default function Home() {
         <header className="shrink-0 sticky top-0 w-full z-20 bg-[#212121] border-b border-white/5 relative">
           <div className="max-w-4xl mx-auto px-2 sm:px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
-              <button onClick={() => setIsMobileMenuOpen(true)} className="md:hidden p-2 -ml-1 text-gray-400 hover:text-gray-100 rounded-lg hover:bg-[#2F2F2F] transition">
+              <button
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="md:hidden p-2 -ml-1 text-gray-400 hover:text-gray-100 rounded-lg hover:bg-[#2F2F2F] transition"
+              >
                 <Menu size={22} />
               </button>
               <div>
@@ -579,35 +745,51 @@ export default function Home() {
                   ODM<span className="text-gray-500">.</span>
                 </h1>
                 <p className="text-[10px] sm:text-xs text-gray-400 font-medium hidden sm:block">
-                  {engineRef.current ? "AI Active - Secure & Local" : "AI Offline"}
+                  {engineRef.current
+                    ? "AI Active - Secure & Local"
+                    : "AI Offline"}
                 </p>
               </div>
             </div>
 
+            {/* 🚀 CENTERED ACTIVE MODEL BADGE (Now Clickable!) */}
             {engineRef.current && (
-              <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none animate-in fade-in zoom-in duration-300">
-                <span className="text-[8px] sm:text-[9px] text-emerald-500/80 font-bold uppercase tracking-widest mb-1">
+              <button
+                onClick={() => setShowModelSelector(true)}
+                className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center animate-in fade-in zoom-in duration-300 group outline-none"
+              >
+                <span className="text-[8px] sm:text-[9px] text-emerald-500/80 font-bold uppercase tracking-widest mb-1 group-hover:text-emerald-400 transition-colors">
                   Active Engine
                 </span>
-                <div className="flex items-center gap-1.5 bg-[#2F2F2F] px-3 py-1 rounded-full border border-white/5 shadow-sm">
+                <div className="flex items-center gap-1.5 bg-[#2F2F2F] group-hover:bg-[#3F3F3F] transition-colors px-3 py-1 rounded-full border border-white/5 shadow-sm cursor-pointer">
                   <Cpu size={12} className="text-emerald-400" />
                   <span className="text-[10px] sm:text-xs text-gray-200 font-medium whitespace-nowrap">
                     {activeModel?.name}
                   </span>
+                  <ChevronDown
+                    size={12}
+                    className="text-gray-500 ml-0.5 group-hover:text-gray-300 transition-colors"
+                  />
                 </div>
-              </div>
+              </button>
             )}
 
             <div className="flex items-center gap-1.5 sm:gap-3 relative">
               {messages.length > 0 && (
-                <button onClick={() => setShowShareModal(true)} className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm">
+                <button
+                  onClick={() => setShowShareModal(true)}
+                  className="flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-transparent border border-white/10 rounded-lg text-sm font-medium hover:bg-[#2F2F2F] transition text-gray-100 shadow-sm"
+                >
                   <Share size={16} className="text-gray-400" />
                   <span className="hidden sm:inline">Share</span>
                 </button>
               )}
 
               {!engineRef.current && !isEngineLoading && (
-                <button onClick={runAppleDiagnostics} className="text-[10px] sm:text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-red-500/20 transition">
+                <button
+                  onClick={runAppleDiagnostics}
+                  className="text-[10px] sm:text-xs font-semibold bg-red-500/10 border border-red-500/20 text-red-400 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-red-500/20 transition"
+                >
                   Test GPU
                 </button>
               )}
@@ -625,11 +807,17 @@ export default function Home() {
 
               <div className="flex items-center gap-1.5 sm:gap-2 px-2 py-1.5 bg-[#1A1A1A] border border-white/5 rounded-lg ml-0.5 sm:ml-2 min-w-[65px] sm:min-w-[85px] transition-all duration-500 shadow-inner">
                 <div className="relative flex h-2 w-2 shrink-0 mt-0.5">
-                  <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isOnline ? "bg-emerald-400 animate-ping" : "bg-amber-400 animate-pulse"}`}></span>
-                  <span className={`relative inline-flex rounded-full h-2 w-2 ${isOnline ? "bg-emerald-500" : "bg-amber-500"}`}></span>
+                  <span
+                    className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${isOnline ? "bg-emerald-400 animate-ping" : "bg-amber-400 animate-pulse"}`}
+                  ></span>
+                  <span
+                    className={`relative inline-flex rounded-full h-2 w-2 ${isOnline ? "bg-emerald-500" : "bg-amber-500"}`}
+                  ></span>
                 </div>
                 <div className="flex flex-col justify-center">
-                  <span className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? "text-emerald-400" : "text-amber-400"}`}>
+                  <span
+                    className={`text-[8px] sm:text-[10px] font-bold uppercase tracking-wider leading-none mb-0.5 transition-colors duration-300 ${isOnline ? "text-emerald-400" : "text-amber-400"}`}
+                  >
                     {isOnline ? "Online" : "Offline"}
                   </span>
                   <span className="text-[6px] sm:text-[8px] text-gray-500 leading-none transition-all duration-300 truncate hidden sm:block">
@@ -658,7 +846,10 @@ export default function Home() {
               </span>
             </div>
             <div className="h-2.5 w-full bg-[#1A1A1A] rounded-full overflow-hidden mt-4 border border-white/5">
-              <div className="h-full bg-gray-100 transition-all duration-300" style={{ width: `${loadingProgress}%` }} />
+              <div
+                className="h-full bg-gray-100 transition-all duration-300"
+                style={{ width: `${loadingProgress}%` }}
+              />
             </div>
             <p className="text-xs font-mono text-gray-400 mt-3 truncate bg-[#212121] p-2 rounded-lg border border-white/5">
               {loadingText}
@@ -672,15 +863,24 @@ export default function Home() {
               <div className="text-5xl font-bold tracking-tighter text-gray-200 mb-2 select-none cursor-default">
                 ODM<span className="text-gray-600">.</span>
               </div>
-              <h2 className="text-xl font-semibold text-gray-300">How can I help you today?</h2>
+              <h2 className="text-xl font-semibold text-gray-300">
+                How can I help you today?
+              </h2>
               <p className="text-sm text-center font-medium">
-                {engineRef.current ? "AI loaded. Upload an image or send a prompt." : "Initialize AI engine to begin."}
+                {engineRef.current
+                  ? "AI loaded. Upload an image or send a prompt."
+                  : "Initialize AI engine to begin."}
               </p>
             </div>
           ) : (
             <div className="space-y-6">
               {messages.map((msg: any, idx: number) => (
-                <MessageItem key={idx} role={msg.role} content={msg.content} onEdit={handleEditPrompt} />
+                <MessageItem
+                  key={idx}
+                  role={msg.role}
+                  content={msg.content}
+                  onEdit={handleEditPrompt}
+                />
               ))}
 
               {(streamingContent || visionStatus) && (
@@ -688,7 +888,8 @@ export default function Home() {
                   <div className="px-5 py-3.5 max-w-[90%] md:max-w-[80%] bg-transparent text-gray-100 whitespace-pre-wrap">
                     {visionStatus && (
                       <span className="text-xs text-gray-400 flex items-center gap-2 mb-2 font-mono">
-                        <Loader2 size={12} className="animate-spin" /> {visionStatus}
+                        <Loader2 size={12} className="animate-spin" />{" "}
+                        {visionStatus}
                       </span>
                     )}
                     {streamingContent || (
@@ -714,32 +915,74 @@ export default function Home() {
           <div className="max-w-3xl mx-auto relative">
             {selectedImage && (
               <div className="absolute bottom-full mb-4 left-4 p-2 backdrop-blur-md bg-[#2F2F2F] rounded-2xl border border-white/10 shadow-xl">
-                <img src={selectedImage} alt="Preview" className="h-14 w-14 object-cover rounded-lg" />
-                <button onClick={() => setSelectedImage(null)} className="absolute -top-2 -right-2 bg-[#212121] hover:bg-red-500 text-white rounded-full p-1 text-xs border border-white/10">✕</button>
+                <img
+                  src={selectedImage}
+                  alt="Preview"
+                  className="h-14 w-14 object-cover rounded-lg"
+                />
+                <button
+                  onClick={() => setSelectedImage(null)}
+                  className="absolute -top-2 -right-2 bg-[#212121] hover:bg-red-500 text-white rounded-full p-1 text-xs border border-white/10"
+                >
+                  ✕
+                </button>
               </div>
             )}
 
-            <div className={`flex items-end gap-2 p-2 bg-[#2F2F2F] border rounded-3xl shadow-lg transition-colors ${engineRef.current ? "border-white/10 focus-within:border-gray-500" : "border-white/5 opacity-60"}`}>
-              <input type="file" accept="image/*" ref={fileInputRef} onChange={handleImageUpload} className="hidden" disabled={!engineRef.current} />
-              <button onClick={() => fileInputRef.current?.click()} disabled={!engineRef.current} className="p-3 mb-0.5 ml-1 text-gray-400 hover:text-gray-100 hover:bg-[#3F3F3F] rounded-full transition-all disabled:hover:bg-transparent">
+            <div
+              className={`flex items-end gap-2 p-2 bg-[#2F2F2F] border rounded-3xl shadow-lg transition-colors ${engineRef.current ? "border-white/10 focus-within:border-gray-500" : "border-white/5 opacity-60"}`}
+            >
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                className="hidden"
+                disabled={!engineRef.current}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={!engineRef.current}
+                className="p-3 mb-0.5 ml-1 text-gray-400 hover:text-gray-100 hover:bg-[#3F3F3F] rounded-full transition-all disabled:hover:bg-transparent"
+              >
                 <ImageIcon size={22} />
               </button>
               <textarea
                 ref={textareaRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (!isGenerating) handleSend(); } }}
-                placeholder={engineRef.current ? "Message ODM..." : "Load the AI engine first..."}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!isGenerating) handleSend();
+                  }
+                }}
+                placeholder={
+                  engineRef.current
+                    ? "Message ODM..."
+                    : "Load the AI engine first..."
+                }
                 disabled={isGenerating || !engineRef.current}
                 rows={1}
                 className="flex-1 max-h-32 min-h-[44px] bg-transparent text-gray-100 placeholder-gray-500 px-2 py-3 focus:outline-none resize-none disabled:opacity-50"
               />
-              <button onClick={handleSend} disabled={(!input.trim() && !selectedImage) || isGenerating || !engineRef.current} className="p-3 mb-0.5 mr-1 bg-gray-100 text-[#212121] rounded-full hover:bg-white disabled:opacity-50 transition-colors shadow-sm">
+              <button
+                onClick={handleSend}
+                disabled={
+                  (!input.trim() && !selectedImage) ||
+                  isGenerating ||
+                  !engineRef.current
+                }
+                className="p-3 mb-0.5 mr-1 bg-gray-100 text-[#212121] rounded-full hover:bg-white disabled:opacity-50 transition-colors shadow-sm"
+              >
                 <Send size={18} className="ml-0.5" />
               </button>
             </div>
             <div className="text-center mt-3">
-              <span className="text-[10px] text-gray-500">ODM runs entirely on your device. Responses may occasionally be inaccurate.</span>
+              <span className="text-[10px] text-gray-500">
+                ODM runs entirely on your device. Responses may occasionally be
+                inaccurate.
+              </span>
             </div>
           </div>
         </footer>
