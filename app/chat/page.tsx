@@ -916,8 +916,16 @@ export default function Home() {
           )}
         </main>
 
+        {/* --- BOTTOM INPUT BAR --- */}
         <footer className="shrink-0 w-full z-10 pb-4 sm:pb-6 pt-2 px-4 sm:px-6 bg-[#212121]">
-          <div className="max-w-3xl mx-auto relative">
+          {/* 🚀 FIX: Added smooth slide-up animation. Hidden when engineRef is null! */}
+          <div 
+            className={`max-w-3xl mx-auto relative transform transition-all duration-700 ease-out ${
+              engineRef.current 
+                ? "translate-y-0 opacity-100" 
+                : "translate-y-24 opacity-0 pointer-events-none"
+            }`}
+          >
             {selectedImage && (
               <div className="absolute bottom-full mb-4 left-4 p-2 backdrop-blur-md bg-[#2F2F2F] rounded-2xl border border-white/10 shadow-xl">
                 <img
@@ -952,6 +960,7 @@ export default function Home() {
               >
                 <ImageIcon size={22} />
               </button>
+
               <textarea
                 ref={textareaRef}
                 value={input}
@@ -962,15 +971,12 @@ export default function Home() {
                     if (!isGenerating) handleSend();
                   }
                 }}
-                placeholder={
-                  engineRef.current
-                    ? "Message ODM..."
-                    : "Load the AI engine first..."
-                }
+                placeholder="Message ODM..."
                 disabled={isGenerating || !engineRef.current}
                 rows={1}
                 className="flex-1 max-h-32 min-h-[44px] bg-transparent text-gray-100 placeholder-gray-500 px-2 py-3 focus:outline-none resize-none disabled:opacity-50"
               />
+
               <button
                 onClick={handleSend}
                 disabled={
