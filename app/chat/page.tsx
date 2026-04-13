@@ -228,7 +228,9 @@ export default function Home() {
     };
   }, []);
 
-  // 🚀 LOGIC: Scan Cache for installed models and auto-initialize if exactly 1 exists
+  // 🚀 LOGIC: Scan Cache for installed models
+  // - If exactly 1 exists: Auto-initialize
+  // - If 0 or multiple exist: Automatically show the selection popup
   useEffect(() => {
     const scanCacheAndInit = async () => {
       try {
@@ -252,19 +254,22 @@ export default function Home() {
         const installedArr = Array.from(detected);
         setInstalledModels(installedArr);
 
-        // Auto-Initialize if exactly one model is installed and no engine is loading
-        if (
-          installedArr.length === 1 &&
-          !engineRef.current &&
-          !isEngineLoading
-        ) {
-          setActiveModelId(installedArr[0]);
-          startEngine(installedArr[0]);
+        // Check conditions for auto-start vs showing the popup
+        if (!engineRef.current && !isEngineLoading) {
+          if (installedArr.length === 1) {
+            // Exactly one model found: Boot it instantly!
+            setActiveModelId(installedArr[0]);
+            startEngine(installedArr[0]);
+          } else {
+            // 0 models or Multiple models found: Pop the menu open automatically!
+            setShowModelSelector(true);
+          }
         }
       } catch (e) {
         console.error("Cache scan failed:", e);
       }
     };
+
     scanCacheAndInit();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
