@@ -571,7 +571,7 @@ export default function Home() {
           The current iteration of ODM relies on raw hardware power to run local
           AI models entirely in the browser. Mobile devices lack the required
           memory and WebGPU support.
-          <br />
+        <p></p>
           <h5 className="text-2xl font-bold tracking-tight text-white mb-3">
             I'm busy forging the mobile experience. For now, grab a laptop.  
         </h5>  
