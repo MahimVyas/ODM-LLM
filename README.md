@@ -5,7 +5,7 @@
 
 ODM is a zero-latency, privacy-first Edge AI application that runs advanced Large Language Models and Vision Transformers entirely within the browser. By leveraging WebAssembly and native WebGPU/CPU limits, ODM eliminates cloud server dependency, ensuring user data never leaves the device.
 
-## What's New in v1.0.0 (Initial Release)
+## What's in v1.0.0 (Initial Release)
 * **Smart Model Management:** Dynamically select, download, and swap between highly optimized WebGPU models (Llama 3.2 1B, Phi-3 Mini, Qwen 2 1.5B, Llama 3 8B) directly from the UI.
 * **Storage Control:** View cached models and instantly clear local browser cache or chat history from the Settings menu to free up hard drive space.
 * **Mobile Guard:** Apple and Google currently restrict WebGPU RAM on mobile devices. ODM v1.0.0 introduces a seamless "Desktop Required" lock screen to prevent silent out-of-memory (OOM) crashes on phones.
