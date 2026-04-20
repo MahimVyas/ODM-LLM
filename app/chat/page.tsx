@@ -571,13 +571,13 @@ export default function Home() {
           The current iteration of ODM relies on raw hardware power to run local
           AI models entirely in the browser. Mobile devices lack the required
           memory and WebGPU support.
+        </p>
           {/* 🚀 NEW: Polished Developer Quote Box */}
           <div className="px-5 py-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl mb-10 max-w-[280px] shadow-inner">
             <p className="text-sm font-semibold text-emerald-400 leading-snug italic">
               "I'm busy forging the mobile experience. For now, grab a laptop."
             </p>
           </div>
-        </p>
 
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
