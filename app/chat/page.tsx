@@ -571,7 +571,9 @@ export default function Home() {
           The current iteration of ODM relies on raw hardware power to run local
           AI models entirely in the browser. Mobile devices lack the required
           memory and WebGPU support.
-        </p>
+          The current iteration of ODM relies on raw hardware power to run local AI models entirely in the browser. Mobile devices lack the required memory and WebGPU support.    
+          </p>
+
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
           className="flex items-center gap-2 px-6 py-3 bg-gray-100 hover:bg-white text-[#212121] rounded-full font-semibold transition-all shadow-sm"
