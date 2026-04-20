@@ -571,11 +571,13 @@ export default function Home() {
           The current iteration of ODM relies on raw hardware power to run local
           AI models entirely in the browser. Mobile devices lack the required
           memory and WebGPU support.
-        <p></p>
-          <h5 className="text-2xl font-bold tracking-tight text-white mb-3">
-            I'm busy forging the mobile experience. For now, grab a laptop.  
-        </h5>  
-          </p>
+          {/* 🚀 NEW: Polished Developer Quote Box */}
+          <div className="px-5 py-3.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl mb-10 max-w-[280px] shadow-inner">
+            <p className="text-sm font-semibold text-emerald-400 leading-snug italic">
+              "I'm busy forging the mobile experience. For now, grab a laptop."
+            </p>
+          </div>
+        </p>
 
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
@@ -924,10 +926,10 @@ export default function Home() {
         {/* --- BOTTOM INPUT BAR --- */}
         <footer className="shrink-0 w-full z-10 pb-4 sm:pb-6 pt-2 px-4 sm:px-6 bg-[#212121]">
           {/* 🚀 FIX: Added smooth slide-up animation. Hidden when engineRef is null! */}
-          <div 
+          <div
             className={`max-w-3xl mx-auto relative transform transition-all duration-700 ease-out ${
-              engineRef.current 
-                ? "translate-y-0 opacity-100" 
+              engineRef.current
+                ? "translate-y-0 opacity-100"
                 : "translate-y-24 opacity-0 pointer-events-none"
             }`}
           >
